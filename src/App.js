@@ -15,14 +15,14 @@ import Geography from "./scenes/geography";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./scenes/calendar/calendar";
-import PromotionList from "./scenes/Promotion/PromotionList";
-import FormationList from "./scenes/Formation/FormationList";
-import EnseignantList from "./scenes/Enseignant/EnseignantList";
-import EtudiantList from "./scenes/Etudiant/EtudiantList";
-import EtudiantDetail from "./scenes/Etudiant/EtudiantDetails";
-import PromotionDetail from "./scenes/Promotion/PromotionDetails";
-import FormationDetail from "./scenes/Formation/FormationDetails";
-import EnseignantDetail from "./scenes/Enseignant/EnseignantDetails";
+import PromotionList from "./Pages/Promotion/PromotionList";
+import FormationList from "./Pages/Formation/FormationList";
+import EnseignantList from "./Pages/Enseignant/EnseignantList";
+import EtudiantList from "./Pages/Etudiant/EtudiantList";
+import EtudiantDetail from "./Pages/Etudiant/EtudiantDetails";
+import PromotionDetail from "./Pages/Promotion/PromotionDetails";
+import FormationDetail from "./Pages/Formation/FormationDetails";
+import EnseignantDetail from "./Pages/Enseignant/EnseignantDetails";
 
 function App() {
   const [theme, colorMode] = useMode();
