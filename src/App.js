@@ -19,6 +19,10 @@ import PromotionList from "./scenes/Promotion/PromotionList";
 import FormationList from "./scenes/Formation/FormationList";
 import EnseignantList from "./scenes/Enseignant/EnseignantList";
 import EtudiantList from "./scenes/Etudiant/EtudiantList";
+import EtudiantDetail from "./scenes/Etudiant/EtudiantDetails";
+import PromotionDetail from "./scenes/Promotion/PromotionDetails";
+import FormationDetail from "./scenes/Formation/FormationDetails";
+import EnseignantDetail from "./scenes/Enseignant/EnseignantDetails";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -34,10 +38,28 @@ function App() {
             <Topbar setIsSidebar={setIsSidebar} />
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/etudiants" element={<EtudiantList />} />
-              <Route path="/promotions" element={<PromotionList />} />
-              <Route path="/formations" element={<FormationList />} />
-              <Route path="/enseignants" element={<EnseignantList />} />
+
+              <Route path="/etudiants" element={<EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />} />
+
+              <Route path="/promotions" element={<PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />} />
+
+              <Route path="/formations" element={<FormationList title="FORMATIONS" subtitle="Liste des formations :" />} />
+
+              <Route path="/enseignants" element={<EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />} />
+
+
+              <Route path="/etudiants" element={<EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />} />
+              <Route path="/etudiants/:slug" element={<EtudiantDetail />} />
+
+              <Route path="/promotions" element={<PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />} />
+              <Route path="/promotions/:slug" element={<PromotionDetail />} />
+
+              <Route path="/formations" element={<FormationList title="FORMATIONS" subtitle="Liste des formations :" />} />
+              <Route path="/formations/:slug" element={<FormationDetail />} />
+
+              <Route path="/enseignants" element={<EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />} />
+              <Route path="/enseignants/:slug" element={<EnseignantDetail />} />
+
 
 
 
