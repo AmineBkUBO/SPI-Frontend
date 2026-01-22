@@ -94,28 +94,28 @@ const Sidebar = () => {
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Formations"
-              to="/"
+              to="/formations"
               icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Etudiants"
-              to="/team"
+              to="/etudiants"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Enseignants"
-              to="/contacts"
+              to="/enseignants"
               icon={<ContactsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Promotion"
-              to="/invoices"
+              to="/promotions"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
