@@ -20,9 +20,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import useEtudiantStore from "../../Store/etudiantStore";
 
 const EtudiantDetails = () => {
-    const { noEtudNat } = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { slug } = useParams();
+
 
     const {
         selectedEtudiant,
@@ -32,8 +33,8 @@ const EtudiantDetails = () => {
     } = useEtudiantStore();
 
     useEffect(() => {
-        fetchEtudiantById(selectedEtudiant);
-    }, [noEtudNat, fetchEtudiantById]);
+        fetchEtudiantById(slug);
+    }, [ fetchEtudiantById]);
 
     if (loading) {
         return (

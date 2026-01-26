@@ -24,7 +24,7 @@ const usePromotionStore = create((set, get) => ({
             console.log(id);
             console.info(get().selectedPromotion);
             const response = await api.get(`/promotions/${id}`);
-            console.log(response);
+            console.log(response.data);
             set({ selectedPromotion: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });

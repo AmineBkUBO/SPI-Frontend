@@ -11,7 +11,7 @@ import { tokens } from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Header from "../../components/Header";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import useFormationStore from "../../Store/formationStore";
 
 export default function FormationList({
@@ -22,7 +22,7 @@ export default function FormationList({
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    const { formations, loading, error, fetchFormations } =
+    const { formations, loading, error, fetchFormations, selectFormation} =
         useFormationStore();
 
     useEffect(() => {
@@ -97,7 +97,12 @@ export default function FormationList({
             renderCell: ({ row }) => (
                 <Box display="flex" gap="8px">
                     <IconButton
-                        onClick={() => handleView(row.codeFormation)}
+                        onClick={() => {
+                            handleView(row.codeFormation);
+                            console.log(row.codeFormation);
+                            selectFormation(row.codeFormation);
+                        }
+                    }
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -159,7 +164,6 @@ export default function FormationList({
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10, 20, 50]}
-                        // ✅ ID MÉTIER UNIQUE
                         getRowId={(row) => row.codeFormation}
                     />
                 </Box>

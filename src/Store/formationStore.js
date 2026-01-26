@@ -24,7 +24,7 @@ const useFormationStore = create((set, get) => ({
             console.log(id);
             console.info(get().selectedFormation);
             const response = await api.get(`/formations/${id}`);
-            console.log(response);
+            console.log(response.data);
             set({ selectedFormation: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
