@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { Box, Typography, useTheme, IconButton, CircularProgress } from "@mui/material";
+import {
+    Box,
+    Typography,
+    useTheme,
+    IconButton,
+    CircularProgress,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -8,35 +14,98 @@ import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
 import useFormationStore from "../../Store/formationStore";
 
-export default function FormationList({ title = "Formations", subtitle = "Managing Formations" }) {
+export default function FormationList({
+                                          title = "Formations",
+                                          subtitle = "Managing Formations",
+                                      }) {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
-    const { formations, loading, error, fetchFormations } = useFormationStore();
+
+    const { formations, loading, error, fetchFormations } =
+        useFormationStore();
 
     useEffect(() => {
         fetchFormations();
     }, [fetchFormations]);
 
-    const handleView = (id) => navigate(`/formation/${id}`);
-    const handleEdit = (id) => console.log("Edit formation:", id);
+    const handleView = (codeFormation) => {
+        navigate(`/formation/${codeFormation}`);
+    };
 
+    const handleEdit = (codeFormation) => {
+        console.log("Edit formation:", codeFormation);
+    };
+
+    // ✅ Colonnes ALIGNÉES BACKEND
     const columns = [
-        { field: "id", headerName: "ID" },
-        { field: "name", headerName: "Name", flex: 1, cellClassName: "name-column--cell" },
-        { field: "age", headerName: "Age", type: "number", headerAlign: "left", align: "left" },
-        { field: "phone", headerName: "Phone Number", flex: 1 },
-        { field: "email", headerName: "Email", flex: 1 },
+        {
+            field: "codeFormation",
+            headerName: "Code",
+            width: 100,
+        },
+        {
+            field: "nomFormation",
+            headerName: "Nom de la formation",
+            flex: 1,
+            cellClassName: "name-column--cell",
+        },
+        {
+            field: "diplome",
+            headerName: "Diplôme",
+            width: 100,
+            valueFormatter: (params) => {
+                switch (params.value) {
+                    case "L":
+                        return "Licence";
+                    case "M":
+                        return "Master";
+                    default:
+                        return params.value;
+                }
+            },
+        },
+        {
+            field: "n0Annee",
+            headerName: "Année",
+            width: 90,
+            valueFormatter: (params) =>
+                params.value ? "Oui" : "Non",
+        },
+        {
+            field: "doubleDiplome",
+            headerName: "Double diplôme",
+            width: 150,
+            valueFormatter: (params) =>
+                params.value ? "Oui" : "Non",
+        },
+        {
+            field: "debutHabilitation",
+            headerName: "Début habilitation",
+            width: 160,
+        },
+        {
+            field: "finHabilitation",
+            headerName: "Fin habilitation",
+            width: 120,
+        },
         {
             field: "actions",
             headerName: "Actions",
-            flex: 1,
+            width: 100,
+            sortable: false,
             renderCell: ({ row }) => (
-                <Box display="flex" justifyContent="center" gap="10px">
-                    <IconButton onClick={() => handleView(row.id)} sx={{ color: colors.greenAccent[600] }}>
+                <Box display="flex" gap="8px">
+                    <IconButton
+                        onClick={() => handleView(row.codeFormation)}
+                        sx={{ color: colors.greenAccent[600] }}
+                    >
                         <VisibilityOutlinedIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleEdit(row.id)} sx={{ color: colors.blueAccent[600] }}>
+                    <IconButton
+                        onClick={() => handleEdit(row.codeFormation)}
+                        sx={{ color: colors.blueAccent[600] }}
+                    >
                         <EditOutlinedIcon />
                     </IconButton>
                 </Box>
@@ -47,8 +116,14 @@ export default function FormationList({ title = "Formations", subtitle = "Managi
     return (
         <Box m="20px">
             <Header title={title} subtitle={subtitle} />
+
             {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" height="75vh">
+                <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    height="75vh"
+                >
                     <CircularProgress />
                 </Box>
             ) : error ? (
@@ -62,14 +137,30 @@ export default function FormationList({ title = "Formations", subtitle = "Managi
                     sx={{
                         "& .MuiDataGrid-root": { border: "none" },
                         "& .MuiDataGrid-cell": { borderBottom: "none" },
-                        "& .name-column--cell": { color: colors.greenAccent[300] },
-                        "& .MuiDataGrid-columnHeaders": { backgroundColor: colors.blueAccent[700], borderBottom: "none" },
-                        "& .MuiDataGrid-virtualScroller": { backgroundColor: colors.primary[400] },
-                        "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
+                        "& .name-column--cell": {
+                            color: colors.greenAccent[300],
+                            fontWeight: "bold",
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                            backgroundColor: colors.blueAccent[700],
+                            borderBottom: "none",
+                        },
+                        "& .MuiDataGrid-virtualScroller": {
+                            backgroundColor: colors.primary[400],
+                        },
+                        "& .MuiDataGrid-footerContainer": {
+                            borderTop: "none",
+                            backgroundColor: colors.blueAccent[700],
+                        },
                     }}
                 >
-                    <DataGrid rows={formations} columns={columns} pageSize={10}
-                              getRowId={(row) => row.codeFormation}
+                    <DataGrid
+                        rows={formations}
+                        columns={columns}
+                        pageSize={10}
+                        rowsPerPageOptions={[10, 20, 50]}
+                        // ✅ ID MÉTIER UNIQUE
+                        getRowId={(row) => row.codeFormation}
                     />
                 </Box>
             )}

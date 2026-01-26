@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { Box, Typography, useTheme, IconButton, CircularProgress } from "@mui/material";
+import {
+    Box,
+    Typography,
+    useTheme,
+    IconButton,
+    CircularProgress,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -17,51 +23,66 @@ export default function EnseignantList({
     const navigate = useNavigate();
 
     // Zustand store
-    const { enseignants, loading, error, fetchEnseignants } = useEnseignantStore();
+    const { enseignants, loading, error, fetchEnseignants } =
+        useEnseignantStore();
 
     useEffect(() => {
         fetchEnseignants();
     }, [fetchEnseignants]);
 
     const handleView = (id) => {
-        navigate(`/team/${id}`);
+        navigate(`/enseignant/${id}`);
     };
 
     const handleEdit = (id) => {
         console.log("Edit enseignant:", id);
     };
 
+    // ✅ Columns adapted to BACKEND DATA
     const columns = [
-        { field: "id", headerName: "ID" },
         {
-            field: "name",
-            headerName: "Name",
+            field: "id",
+            headerName: "ID",
+            width: 70,
+        },
+        {
+            field: "nom",
+            headerName: "Nom",
             flex: 1,
             cellClassName: "name-column--cell",
         },
         {
-            field: "age",
-            headerName: "Age",
-            type: "number",
-            headerAlign: "left",
-            align: "left",
-        },
-        {
-            field: "phone",
-            headerName: "Phone Number",
+            field: "prenom",
+            headerName: "Prénom",
             flex: 1,
         },
         {
-            field: "email",
+            field: "type",
+            headerName: "Type",
+            width: 90,
+        },
+        {
+            field: "sexe",
+            headerName: "Sexe",
+            width: 90,
+        },
+        {
+            field: "telPort",
+            headerName: "Téléphone",
+            flex: 1,
+        },
+        {
+            field: "encUboEmail",
             headerName: "Email",
             flex: 1,
         },
         {
             field: "actions",
             headerName: "Actions",
-            flex: 1,
+            width: 120,
+            sortable: false,
             renderCell: ({ row }) => (
-                <Box display="flex" justifyContent="center" gap="10px">
+                <Box display="flex" gap="8px">
                     <IconButton
                         onClick={() => handleView(row.id)}
                         sx={{ color: colors.greenAccent[600] }}
@@ -101,9 +122,15 @@ export default function EnseignantList({
                     m="40px 0 0 0"
                     height="75vh"
                     sx={{
-                        "& .MuiDataGrid-root": { border: "none" },
-                        "& .MuiDataGrid-cell": { borderBottom: "none" },
-                        "& .name-column--cell": { color: colors.greenAccent[300] },
+                        "& .MuiDataGrid-root": {
+                            border: "none",
+                        },
+                        "& .MuiDataGrid-cell": {
+                            borderBottom: "none",
+                        },
+                        "& .name-column--cell": {
+                            color: colors.greenAccent[300],
+                        },
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: colors.blueAccent[700],
                             borderBottom: "none",
@@ -117,7 +144,12 @@ export default function EnseignantList({
                         },
                     }}
                 >
-                    <DataGrid rows={enseignants} columns={columns} pageSize={10} />
+                    <DataGrid
+                        rows={enseignants}
+                        columns={columns}
+                        pageSize={10}
+                        rowsPerPageOptions={[10, 20, 50]}
+                    />
                 </Box>
             )}
         </Box>
