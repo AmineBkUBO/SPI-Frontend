@@ -13,7 +13,7 @@ const CreatePromotionForm = () => {
 
     return (
         <Box m="20px">
-            <Header title="CREATE USER" subtitle="Create a New User Profile" />
+            <Header title="CREATE PROMOTION" subtitle="Créer une nouvelle Promotion" />
 
             <Formik
                 onSubmit={handleFormSubmit}
