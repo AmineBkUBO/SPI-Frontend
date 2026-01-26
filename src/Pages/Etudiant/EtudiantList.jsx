@@ -22,7 +22,7 @@ export default function EtudiantList({
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    const { etudiants, loading, error, fetchEtudiants } =
+    const { etudiants, loading, error, fetchEtudiants, selectStudent } =
         useEtudiantStore();
 
     useEffect(() => {
@@ -95,7 +95,12 @@ export default function EtudiantList({
             renderCell: ({ row }) => (
                 <Box display="flex" gap="8px">
                     <IconButton
-                        onClick={() => handleView(row.noEtudiantNat)}
+                        onClick={() => {
+                            handleView(row.noEtudiantNat);
+                            selectStudent(row.noEtudiantNat);
+                            console.log(row.noEtudiantNat)
+                        }
+                    }
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -157,7 +162,6 @@ export default function EtudiantList({
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10, 20, 50]}
-                        // ✅ ID MÉTIER UNIQUE
                         getRowId={(row) => row.noEtudiantNat}
                     />
                 </Box>
