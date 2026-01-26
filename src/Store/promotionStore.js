@@ -10,7 +10,7 @@ const usePromotionStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.get('/promotions');
-            console.log(response);
+            console.log(response.data);
             set({ promotions: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });

@@ -10,7 +10,7 @@ const useFormationStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.get('/formations');
-            console.log(response);
+            console.log(response.data);
             set({ formations: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });

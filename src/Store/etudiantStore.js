@@ -10,7 +10,7 @@ const useEtudiantStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const response = await api.get('/etudiants');
-            console.log(response);
+            console.log(response.data);
             set({ etudiants: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
