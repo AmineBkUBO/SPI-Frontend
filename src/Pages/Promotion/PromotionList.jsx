@@ -5,6 +5,7 @@ import {
     useTheme,
     IconButton,
     CircularProgress,
+    Button, // ✅ added
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -22,55 +23,23 @@ export default function PromotionList({
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    const { promotions, loading, error, fetchPromotions } =
-        usePromotionStore();
+    const { promotions, loading, error, fetchPromotions } = usePromotionStore();
 
     useEffect(() => {
         fetchPromotions();
     }, [fetchPromotions]);
 
-    const handleView = (anneePro) => {
-        navigate(`/promotion/${anneePro}`);
-    };
+    const handleView = (anneePro) => navigate(`/promotion/${anneePro}`);
+    const handleEdit = (anneePro, siglePro) => console.log("Edit promotion:", anneePro, siglePro);
+    const handleAdd = () => navigate("/promotions/add"); // ✅
 
-    const handleEdit = (anneePro, siglePro) => {
-        console.log("Edit promotion:", anneePro, siglePro);
-    };
-
-    // ✅ Colonnes alignées avec le BACKEND
     const columns = [
-        {
-            field: "anneePro",
-            headerName: "Année",
-            width: 120,
-        },
-        {
-            field: "siglePro",
-            headerName: "Sigle",
-            width: 120,
-            cellClassName: "name-column--cell",
-        },
-        {
-            field: "nbEtuSouhaite",
-            headerName: "Étudiants souhaités",
-            type: "number",
-            width: 180,
-        },
-        {
-            field: "etatPreselection",
-            headerName: "État",
-            width: 120,
-        },
-        {
-            field: "dateRentree",
-            headerName: "Date de rentrée",
-            width: 160,
-        },
-        {
-            field: "lieuRentree",
-            headerName: "Lieu",
-            width: 120,
-        },
+        { field: "anneePro", headerName: "Année", width: 120 },
+        { field: "siglePro", headerName: "Sigle", width: 120, cellClassName: "name-column--cell" },
+        { field: "nbEtuSouhaite", headerName: "Étudiants souhaités", type: "number", width: 180 },
+        { field: "etatPreselection", headerName: "État", width: 120 },
+        { field: "dateRentree", headerName: "Date de rentrée", width: 160 },
+        { field: "lieuRentree", headerName: "Lieu", width: 120 },
         {
             field: "responsable",
             headerName: "Responsable",
@@ -88,7 +57,7 @@ export default function PromotionList({
             renderCell: ({ row }) => (
                 <Box display="flex" gap="8px">
                     <IconButton
-                        onClick={() => handleView(row.anneePro )}
+                        onClick={() => handleView(row.anneePro)}
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -106,15 +75,24 @@ export default function PromotionList({
 
     return (
         <Box m="20px">
-            <Header title={title} subtitle={subtitle} />
+            {/* Header + Add Button */}
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Header title={title} subtitle={subtitle} />
+                <Button
+                    variant="contained"
+                    sx={{
+                        backgroundColor: colors.greenAccent[600],
+                        "&:hover": { backgroundColor: colors.greenAccent[500] },
+                        fontWeight: "bold",
+                    }}
+                    onClick={handleAdd}
+                >
+                    Add Promotion
+                </Button>
+            </Box>
 
             {loading ? (
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="75vh"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height="75vh">
                     <CircularProgress />
                 </Box>
             ) : error ? (
@@ -128,21 +106,10 @@ export default function PromotionList({
                     sx={{
                         "& .MuiDataGrid-root": { border: "none" },
                         "& .MuiDataGrid-cell": { borderBottom: "none" },
-                        "& .name-column--cell": {
-                            color: colors.greenAccent[300],
-                            fontWeight: "bold",
-                        },
-                        "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: colors.blueAccent[700],
-                            borderBottom: "none",
-                        },
-                        "& .MuiDataGrid-virtualScroller": {
-                            backgroundColor: colors.primary[400],
-                        },
-                        "& .MuiDataGrid-footerContainer": {
-                            borderTop: "none",
-                            backgroundColor: colors.blueAccent[700],
-                        },
+                        "& .name-column--cell": { color: colors.greenAccent[300], fontWeight: "bold" },
+                        "& .MuiDataGrid-columnHeaders": { backgroundColor: colors.blueAccent[700], borderBottom: "none" },
+                        "& .MuiDataGrid-virtualScroller": { backgroundColor: colors.primary[400] },
+                        "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
                     <DataGrid

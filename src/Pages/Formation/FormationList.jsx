@@ -5,13 +5,14 @@ import {
     useTheme,
     IconButton,
     CircularProgress,
+    Button, // ✅ import Button
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Header from "../../components/Header";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useFormationStore from "../../Store/formationStore";
 
 export default function FormationList({
@@ -22,7 +23,7 @@ export default function FormationList({
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    const { formations, loading, error, fetchFormations, selectFormation} =
+    const { formations, loading, error, fetchFormations, selectFormation } =
         useFormationStore();
 
     useEffect(() => {
@@ -37,7 +38,11 @@ export default function FormationList({
         console.log("Edit formation:", codeFormation);
     };
 
-    // ✅ Colonnes ALIGNÉES BACKEND
+    const handleAddFormation = () => {
+        navigate("/formations/add"); // ✅ redirect
+    };
+
+    // Columns (unchanged)
     const columns = [
         {
             field: "codeFormation",
@@ -69,15 +74,13 @@ export default function FormationList({
             field: "n0Annee",
             headerName: "Année",
             width: 90,
-            valueFormatter: (params) =>
-                params.value ? "Oui" : "Non",
+            valueFormatter: (params) => (params.value ? "Oui" : "Non"),
         },
         {
             field: "doubleDiplome",
             headerName: "Double diplôme",
             width: 150,
-            valueFormatter: (params) =>
-                params.value ? "Oui" : "Non",
+            valueFormatter: (params) => (params.value ? "Oui" : "Non"),
         },
         {
             field: "debutHabilitation",
@@ -99,10 +102,8 @@ export default function FormationList({
                     <IconButton
                         onClick={() => {
                             handleView(row.codeFormation);
-                            console.log(row.codeFormation);
                             selectFormation(row.codeFormation);
-                        }
-                    }
+                        }}
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -120,7 +121,28 @@ export default function FormationList({
 
     return (
         <Box m="20px">
-            <Header title={title} subtitle={subtitle} />
+            {/* Header + Add Button */}
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Header title={title} subtitle={subtitle} />
+                <Button
+                    variant="contained"
+                    onClick={handleAddFormation}
+                    sx={{
+                        backgroundColor: colors.greenAccent[600],
+                        color: colors.grey[100],
+                        fontWeight: "bold",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        "&:hover": {
+                            backgroundColor: colors.greenAccent[500],
+                        },
+                        boxShadow: "0 3px 5px rgba(0,0,0,0.2)",
+                    }}
+                >
+                    Add Formation
+                </Button>
+
+            </Box>
 
             {loading ? (
                 <Box

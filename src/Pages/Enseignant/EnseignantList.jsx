@@ -1,11 +1,4 @@
-import { useEffect } from "react";
-import {
-    Box,
-    Typography,
-    useTheme,
-    IconButton,
-    CircularProgress,
-} from "@mui/material";
+import { Box, Typography, useTheme, IconButton, CircularProgress, Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -13,69 +6,31 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
 import useEnseignantStore from "../../Store/enseignantStore";
+import { useEffect } from "react";
 
-export default function EnseignantList({
-                                           title = "Enseignants",
-                                           subtitle = "Managing the Teachers",
-                                       }) {
+export default function EnseignantList({ title = "Enseignants", subtitle = "Managing the Teachers" }) {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    // Zustand store
-    const { enseignants, loading, error, fetchEnseignants } =
-        useEnseignantStore();
+    const { enseignants, loading, error, fetchEnseignants } = useEnseignantStore();
 
     useEffect(() => {
         fetchEnseignants();
     }, [fetchEnseignants]);
 
-    const handleView = (id) => {
-        navigate(`/enseignant/${id}`);
-    };
+    const handleView = (id) => navigate(`/enseignant/${id}`);
+    const handleEdit = (id) => console.log("Edit enseignant:", id);
+    const handleAdd = () => navigate("/enseignants/add"); // ✅ redirect to add
 
-    const handleEdit = (id) => {
-        console.log("Edit enseignant:", id);
-    };
-
-    // ✅ Columns adapted to BACKEND DATA
     const columns = [
-        {
-            field: "id",
-            headerName: "ID",
-            width: 70,
-        },
-        {
-            field: "nom",
-            headerName: "Nom",
-            flex: 1,
-            cellClassName: "name-column--cell",
-        },
-        {
-            field: "prenom",
-            headerName: "Prénom",
-            flex: 1,
-        },
-        {
-            field: "type",
-            headerName: "Type",
-            width: 90,
-        },
-        {
-            field: "sexe",
-            headerName: "Sexe",
-            width: 90,
-        },
-        {
-            field: "telPort",
-            headerName: "Téléphone",
-            flex: 1,
-        },
-        {
-            field: "encUboEmail",
-            headerName: "Email",
-            flex: 1,
-        },
+        { field: "id", headerName: "ID", width: 70 },
+        { field: "nom", headerName: "Nom", flex: 1, cellClassName: "name-column--cell" },
+        { field: "prenom", headerName: "Prénom", flex: 1 },
+        { field: "type", headerName: "Type", width: 90 },
+        { field: "sexe", headerName: "Sexe", width: 90 },
+        { field: "telPort", headerName: "Téléphone", flex: 1 },
+        { field: "encUboEmail", headerName: "Email", flex: 1 },
         {
             field: "actions",
             headerName: "Actions",
@@ -83,16 +38,10 @@ export default function EnseignantList({
             sortable: false,
             renderCell: ({ row }) => (
                 <Box display="flex" gap="8px">
-                    <IconButton
-                        onClick={() => handleView(row.id)}
-                        sx={{ color: colors.greenAccent[600] }}
-                    >
+                    <IconButton onClick={() => handleView(row.id)} sx={{ color: colors.greenAccent[600] }}>
                         <VisibilityOutlinedIcon />
                     </IconButton>
-                    <IconButton
-                        onClick={() => handleEdit(row.id)}
-                        sx={{ color: colors.blueAccent[600] }}
-                    >
+                    <IconButton onClick={() => handleEdit(row.id)} sx={{ color: colors.blueAccent[600] }}>
                         <EditOutlinedIcon />
                     </IconButton>
                 </Box>
@@ -102,15 +51,23 @@ export default function EnseignantList({
 
     return (
         <Box m="20px">
-            <Header title={title} subtitle={subtitle} />
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Header title={title} subtitle={subtitle} />
+                <Button
+                    variant="contained"
+                    sx={{
+                        backgroundColor: colors.greenAccent[600],
+                        "&:hover": { backgroundColor: colors.greenAccent[500] },
+                        fontWeight: "bold",
+                    }}
+                    onClick={handleAdd}
+                >
+                    Add Enseignant
+                </Button>
+            </Box>
 
             {loading ? (
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="75vh"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height="75vh">
                     <CircularProgress />
                 </Box>
             ) : error ? (
@@ -122,34 +79,15 @@ export default function EnseignantList({
                     m="40px 0 0 0"
                     height="75vh"
                     sx={{
-                        "& .MuiDataGrid-root": {
-                            border: "none",
-                        },
-                        "& .MuiDataGrid-cell": {
-                            borderBottom: "none",
-                        },
-                        "& .name-column--cell": {
-                            color: colors.greenAccent[300],
-                        },
-                        "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: colors.blueAccent[700],
-                            borderBottom: "none",
-                        },
-                        "& .MuiDataGrid-virtualScroller": {
-                            backgroundColor: colors.primary[400],
-                        },
-                        "& .MuiDataGrid-footerContainer": {
-                            borderTop: "none",
-                            backgroundColor: colors.blueAccent[700],
-                        },
+                        "& .MuiDataGrid-root": { border: "none" },
+                        "& .MuiDataGrid-cell": { borderBottom: "none" },
+                        "& .name-column--cell": { color: colors.greenAccent[300] },
+                        "& .MuiDataGrid-columnHeaders": { backgroundColor: colors.blueAccent[700], borderBottom: "none" },
+                        "& .MuiDataGrid-virtualScroller": { backgroundColor: colors.primary[400] },
+                        "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
-                    <DataGrid
-                        rows={enseignants}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10, 20, 50]}
-                    />
+                    <DataGrid rows={enseignants} columns={columns} pageSize={10} rowsPerPageOptions={[10, 20, 50]} />
                 </Box>
             )}
         </Box>

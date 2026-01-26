@@ -5,6 +5,7 @@ import {
     useTheme,
     IconButton,
     CircularProgress,
+    Button, // ✅ added
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
@@ -37,7 +38,11 @@ export default function EtudiantList({
         console.log("Edit student:", noEtudiantNat);
     };
 
-    // ✅ Colonnes ALIGNÉES BACKEND
+    const handleAdd = () => {
+        navigate("/etudiants/add"); // ✅ redirect to add
+    };
+
+    // Columns
     const columns = [
         {
             field: "noEtudiantNat",
@@ -49,26 +54,21 @@ export default function EtudiantList({
             headerName: "Nom & Prénom",
             flex: 1,
             cellClassName: "name-column--cell",
-            valueGetter: (params) =>
-                `${params.row.nom} ${params.row.prenom}`,
+            valueGetter: (params) => `${params.row.nom} ${params.row.prenom}`,
         },
         {
             field: "formation",
             headerName: "Formation",
             width: 130,
             valueGetter: (params) =>
-                params.row.anneePro
-                    ? params.row.anneePro.siglePro
-                    : "—",
+                params.row.anneePro ? params.row.anneePro.siglePro : "—",
         },
         {
             field: "annee",
             headerName: "Année",
             width: 120,
             valueGetter: (params) =>
-                params.row.anneePro
-                    ? params.row.anneePro.anneePro
-                    : "—",
+                params.row.anneePro ? params.row.anneePro.anneePro : "—",
         },
         {
             field: "email",
@@ -98,9 +98,7 @@ export default function EtudiantList({
                         onClick={() => {
                             handleView(row.noEtudiantNat);
                             selectStudent(row.noEtudiantNat);
-                            console.log(row.noEtudiantNat)
-                        }
-                    }
+                        }}
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -118,15 +116,24 @@ export default function EtudiantList({
 
     return (
         <Box m="20px">
-            <Header title={title} subtitle={subtitle} />
+            {/* Header + Add Button */}
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Header title={title} subtitle={subtitle} />
+                <Button
+                    variant="contained"
+                    sx={{
+                        backgroundColor: colors.greenAccent[600],
+                        "&:hover": { backgroundColor: colors.greenAccent[500] },
+                        fontWeight: "bold",
+                    }}
+                    onClick={handleAdd}
+                >
+                    Add Étudiant
+                </Button>
+            </Box>
 
             {loading ? (
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="75vh"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height="75vh">
                     <CircularProgress />
                 </Box>
             ) : error ? (
@@ -140,21 +147,10 @@ export default function EtudiantList({
                     sx={{
                         "& .MuiDataGrid-root": { border: "none" },
                         "& .MuiDataGrid-cell": { borderBottom: "none" },
-                        "& .name-column--cell": {
-                            color: colors.greenAccent[300],
-                            fontWeight: "bold",
-                        },
-                        "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: colors.blueAccent[700],
-                            borderBottom: "none",
-                        },
-                        "& .MuiDataGrid-virtualScroller": {
-                            backgroundColor: colors.primary[400],
-                        },
-                        "& .MuiDataGrid-footerContainer": {
-                            borderTop: "none",
-                            backgroundColor: colors.blueAccent[700],
-                        },
+                        "& .name-column--cell": { color: colors.greenAccent[300], fontWeight: "bold" },
+                        "& .MuiDataGrid-columnHeaders": { backgroundColor: colors.blueAccent[700], borderBottom: "none" },
+                        "& .MuiDataGrid-virtualScroller": { backgroundColor: colors.primary[400] },
+                        "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
                     <DataGrid
