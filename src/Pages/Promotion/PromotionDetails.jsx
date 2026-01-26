@@ -1,11 +1,15 @@
-// src/Pages/Promotion/PromotionDetail.jsx
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
     Box,
     Typography,
     useTheme,
     CircularProgress,
+    Paper,
+    Chip,
+    Button,
+    Divider,
+    Avatar,
 } from "@mui/material";
 import { tokens } from "../../theme";
 
@@ -18,17 +22,30 @@ import SchoolIcon from "@mui/icons-material/School";
 import EventIcon from "@mui/icons-material/Event";
 import GroupsIcon from "@mui/icons-material/Groups";
 import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditIcon from "@mui/icons-material/Edit";
 import HomeIcon from "@mui/icons-material/Home";
 
 import usePromotionStore from "../../Store/promotionStore";
 import useEnseignantStore from "../../Store/enseignantStore";
 
+const stateColors = {
+    "En cours": "#4cceac",
+    "Terminée": "#db4f4a",
+    "Planifiée": "#6870fa",
+};
+
 const PromotionDetail = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { slug } = useParams();
+    const navigate = useNavigate();
 
-    const { selectedPromotion, loading, error, fetchPromotionById } = usePromotionStore();
+    const { selectedPromotion, loading, error, fetchPromotionById } =
+        usePromotionStore();
     const {
         selectedEnseignant,
         loading: loadingEnseignant,
@@ -36,13 +53,11 @@ const PromotionDetail = () => {
         fetchEnseignantById,
     } = useEnseignantStore();
 
-    // Fetch promotion
     useEffect(() => {
         if (!slug) return;
         fetchPromotionById(slug);
     }, [slug, fetchPromotionById]);
 
-    // Fetch enseignant when promotion is loaded
     useEffect(() => {
         if (selectedPromotion?.noEnseignant?.id) {
             fetchEnseignantById(selectedPromotion.noEnseignant.id);
@@ -54,39 +69,147 @@ const PromotionDetail = () => {
             <Box
                 height="80vh"
                 display="flex"
+                flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
+                gap="20px"
             >
-                <CircularProgress />
+                <CircularProgress size={60} thickness={4} />
+                <Typography variant="h6" color={colors.grey[300]}>
+                    Chargement des informations...
+                </Typography>
             </Box>
         );
     }
 
     if (error || !selectedPromotion) {
         return (
-            <Typography color="error" textAlign="center">
-                Impossible de charger la promotion
-            </Typography>
+            <Box
+                height="80vh"
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                gap="20px"
+            >
+                <Typography color="error" variant="h4" fontWeight="bold">
+                    ⚠️ Erreur
+                </Typography>
+                <Typography color={colors.grey[300]}>
+                    Impossible de charger les informations de la promotion
+                </Typography>
+                <Button
+                    variant="contained"
+                    onClick={() => navigate("/promotions")}
+                    sx={{
+                        backgroundColor: colors.blueAccent[600],
+                        "&:hover": { backgroundColor: colors.blueAccent[700] },
+                    }}
+                >
+                    Retour à la liste
+                </Button>
+            </Box>
         );
     }
 
     const promo = selectedPromotion;
+    const stateColor =
+        stateColors[promo.etatPreselection] || colors.grey[600];
 
     return (
         <Box m="20px">
-            {/* HEADER */}
-            <Header
-                title={`Promotion: ${promo.siglePro || slug}`}
-                subtitle={`Détails et informations pour ${promo.siglePro || slug}`}
-            />
+            {/* ACTION BUTTONS */}
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb="20px">
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate("/promotions")}
+                    sx={{
+                        color: colors.grey[100],
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        "&:hover": {
+                            backgroundColor: colors.primary[400],
+                        },
+                    }}
+                >
+                    Retour
+                </Button>
+                <Button
+                    variant="contained"
+                    startIcon={<EditIcon />}
+                    sx={{
+                        backgroundColor: colors.blueAccent[600],
+                        color: colors.grey[100],
+                        fontWeight: "bold",
+                        "&:hover": {
+                            backgroundColor: colors.blueAccent[700],
+                        },
+                    }}
+                >
+                    Modifier
+                </Button>
+            </Box>
 
-            {/* GRID */}
+            {/* HEADER */}
+            <Paper
+                elevation={3}
+                sx={{
+                    backgroundColor: colors.primary[400],
+                    p: "30px",
+                    mb: "20px",
+                    borderRadius: "12px",
+                }}
+            >
+                <Box display="flex" alignItems="center" gap="20px">
+                    <Box
+                        sx={{
+                            width: 80,
+                            height: 80,
+                            backgroundColor: colors.greenAccent[600],
+                            borderRadius: "12px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        <SchoolIcon sx={{ fontSize: "40px", color: "#fff" }} />
+                    </Box>
+                    <Box flex="1">
+                        <Typography variant="h2" fontWeight="bold" color={colors.greenAccent[400]}>
+                            Promotion {promo.siglePro}
+                        </Typography>
+                        <Typography variant="h5" color={colors.grey[300]} mt="5px">
+                            Année: {promo.anneePro}
+                        </Typography>
+                        <Box display="flex" gap="10px" mt="15px" flexWrap="wrap">
+                            <Chip
+                                label={promo.etatPreselection || "État inconnu"}
+                                sx={{
+                                    backgroundColor: stateColor,
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                }}
+                            />
+                            <Chip
+                                label={`${promo.nbEtuSouhaite || 0} étudiants`}
+                                sx={{
+                                    backgroundColor: colors.blueAccent[700],
+                                    color: colors.grey[100],
+                                    fontWeight: "bold",
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                </Box>
+            </Paper>
+
+            {/* STATS GRID */}
             <Box
                 display="grid"
                 gridTemplateColumns="repeat(12, 1fr)"
                 gridAutoRows="140px"
                 gap="20px"
-                mt="20px"
+                mb="20px"
             >
                 {/* SIGLE */}
                 <Box
@@ -95,11 +218,23 @@ const PromotionDetail = () => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    borderRadius="12px"
+                    sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                            transform: "translateY(-5px)",
+                            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
+                        },
+                    }}
                 >
                     <StatBox
                         title={promo.siglePro || "—"}
                         subtitle="Sigle"
-                        icon={<SchoolIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                        icon={
+                            <SchoolIcon
+                                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                            />
+                        }
                     />
                 </Box>
 
@@ -110,11 +245,23 @@ const PromotionDetail = () => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    borderRadius="12px"
+                    sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                            transform: "translateY(-5px)",
+                            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
+                        },
+                    }}
                 >
                     <StatBox
                         title={promo.anneePro || "—"}
                         subtitle="Année"
-                        icon={<EventIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                        icon={
+                            <EventIcon
+                                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                            />
+                        }
                     />
                 </Box>
 
@@ -125,103 +272,197 @@ const PromotionDetail = () => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    borderRadius="12px"
+                    sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                            transform: "translateY(-5px)",
+                            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
+                        },
+                    }}
                 >
                     <StatBox
                         title={promo.nbEtuSouhaite || 0}
                         subtitle="Nb Étudiants"
-                        icon={<GroupsIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                        icon={
+                            <GroupsIcon
+                                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                            />
+                        }
                     />
                 </Box>
 
-                {/* ÉTAT PRÉSELECTION */}
+                {/* LIEU DE RENTRÉE */}
                 <Box
                     gridColumn="span 3"
                     backgroundColor={colors.primary[400]}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
+                    borderRadius="12px"
+                    sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                            transform: "translateY(-5px)",
+                            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
+                        },
+                    }}
                 >
                     <StatBox
-                        title={promo.etatPreselection || "—"}
-                        subtitle="État Préselection"
-                        icon={<PersonIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                        title={promo.lieuRentree || "Non défini"}
+                        subtitle="Lieu de rentrée"
+                        icon={
+                            <LocationOnIcon
+                                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                            />
+                        }
                     />
                 </Box>
+            </Box>
 
+            {/* DETAILED INFO GRID */}
+            <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap="20px">
                 {/* ENSEIGNANT RESPONSABLE */}
                 <Box
-                    gridColumn="span 4"
-                    gridRow="span 2"
+                    gridColumn="span 6"
                     backgroundColor={colors.primary[400]}
-                    p="25px"
+                    p="30px"
+                    borderRadius="12px"
+                    sx={{
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
                 >
-                    <Typography variant="h5" fontWeight="600" mb="15px">
+                    <Typography
+                        variant="h4"
+                        fontWeight="700"
+                        mb="20px"
+                        color={colors.greenAccent[400]}
+                    >
                         Enseignant Responsable
                     </Typography>
-                    {errorEnseignant && <Typography color="error">{errorEnseignant}</Typography>}
+                    <Divider sx={{ mb: "20px", backgroundColor: colors.grey[700] }} />
+
+                    {errorEnseignant && (
+                        <Typography color="error">{errorEnseignant}</Typography>
+                    )}
                     {!selectedEnseignant && !errorEnseignant && (
-                        <Typography>Chargement...</Typography>
+                        <Box display="flex" justifyContent="center" p="20px">
+                            <CircularProgress size={40} />
+                        </Box>
                     )}
                     {selectedEnseignant && (
                         <Box>
-                            <Typography>
-                                👤 {selectedEnseignant.prenom} {selectedEnseignant.nom}
-                            </Typography>
-                            <Typography>
-                                📞 {selectedEnseignant.encUboTel || "Pas de Mail Perso"}
-                            </Typography>
-                            <Typography>
-                                📞 {selectedEnseignant.encPersoTel || "Pas de Mail Perso"}
-                            </Typography>
-                            <Typography>
-                                📧 {selectedEnseignant.email || "Pas de Mail Perso"}
-                            </Typography>
-                            <Typography>
-                                📧 {selectedEnseignant.encUboEmail || "—"}
-                            </Typography>
-                            <Typography>
-                                🏷 Type : {selectedEnseignant.type || "—"}
-                            </Typography>
-                            <Typography>
-                                🏠 Type : {selectedEnseignant.adresse + ", " + selectedEnseignant.ville  + ", " + selectedEnseignant.cp || "—"}
-                            </Typography>
+                            <Box display="flex" alignItems="center" gap="15px" mb="20px">
+                                <Avatar
+                                    sx={{
+                                        width: 60,
+                                        height: 60,
+                                        backgroundColor: colors.blueAccent[600],
+                                        fontSize: "24px",
+                                    }}
+                                >
+                                    {selectedEnseignant.prenom?.[0]}
+                                    {selectedEnseignant.nom?.[0]}
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h5" fontWeight="bold">
+                                        {selectedEnseignant.prenom} {selectedEnseignant.nom}
+                                    </Typography>
+                                    <Typography variant="body2" color={colors.grey[400]}>
+                                        {selectedEnseignant.type || "Enseignant"}
+                                    </Typography>
+                                </Box>
+                            </Box>
 
+                            <Box display="flex" flexDirection="column" gap="12px">
+                                <Box display="flex" alignItems="center" gap="10px">
+                                    <EmailIcon sx={{ color: colors.blueAccent[500] }} />
+                                    <Typography>
+                                        {selectedEnseignant.encUboEmail || "—"}
+                                    </Typography>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap="10px">
+                                    <PhoneIcon sx={{ color: colors.blueAccent[500] }} />
+                                    <Typography>
+                                        {selectedEnseignant.encUboTel ||
+                                            selectedEnseignant.telPort ||
+                                            "—"}
+                                    </Typography>
+                                </Box>
+                                <Box display="flex" alignItems="center" gap="10px">
+                                    <HomeIcon sx={{ color: colors.blueAccent[500] }} />
+                                    <Typography>
+                                        {selectedEnseignant.adresse
+                                            ? `${selectedEnseignant.adresse}, ${selectedEnseignant.ville} ${selectedEnseignant.cp}`
+                                            : "—"}
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </Box>
                     )}
                 </Box>
 
-                {/* DATES */}
+                {/* DATES IMPORTANTES */}
                 <Box
-                    gridColumn="span 4"
-                    gridRow="span 2"
+                    gridColumn="span 6"
                     backgroundColor={colors.primary[400]}
-                    p="25px"
+                    p="30px"
+                    borderRadius="12px"
+                    sx={{
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    }}
                 >
-                    <Typography variant="h5" fontWeight="600" mb="15px">
+                    <Typography
+                        variant="h4"
+                        fontWeight="700"
+                        mb="20px"
+                        color={colors.greenAccent[400]}
+                    >
                         Dates Importantes
                     </Typography>
-                    <Typography>Rentrée : {promo.dateRentree || "—"}</Typography>
-                    <Typography>Date réponse LP : {promo.dateReponseLp || "—"}</Typography>
-                </Box>
+                    <Divider sx={{ mb: "20px", backgroundColor: colors.grey[700] }} />
 
-                {/* LIEU RENTRÉE */}
-                <Box
-                    gridColumn="span 4"
-                    gridRow="span 2"
-                    backgroundColor={colors.primary[400]}
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <ProgressCircle size="125" />
-                    <Typography
-                        variant="h5"
-                        color={colors.greenAccent[500]}
-                        mt="15px"
-                    >
-                        {promo.lieuRentree || "Non défini"}
-                    </Typography>
+                    <Box display="flex" flexDirection="column" gap="20px">
+                        <Box display="flex" alignItems="center" gap="12px">
+                            <CalendarTodayIcon
+                                sx={{ color: colors.blueAccent[500], fontSize: "24px" }}
+                            />
+                            <Box>
+                                <Typography variant="body2" color={colors.grey[400]}>
+                                    Date de rentrée
+                                </Typography>
+                                <Typography variant="h6" fontWeight="600">
+                                    {promo.dateRentree || "—"}
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box display="flex" alignItems="center" gap="12px">
+                            <CalendarTodayIcon
+                                sx={{ color: colors.blueAccent[500], fontSize: "24px" }}
+                            />
+                            <Box>
+                                <Typography variant="body2" color={colors.grey[400]}>
+                                    Date réponse LP
+                                </Typography>
+                                <Typography variant="h6" fontWeight="600">
+                                    {promo.dateReponseLp || "—"}
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            mt="20px"
+                            p="15px"
+                            backgroundColor={colors.greenAccent[800]}
+                            borderRadius="8px"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <ProgressCircle size="80" />
+                        </Box>
+                    </Box>
                 </Box>
 
                 {/* COMMENTAIRE */}
@@ -229,13 +470,24 @@ const PromotionDetail = () => {
                     <Box
                         gridColumn="span 12"
                         backgroundColor={colors.primary[400]}
-                        p="20px"
-                        borderRadius="8px"
+                        p="30px"
+                        borderRadius="12px"
+                        sx={{
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                        }}
                     >
-                        <Typography variant="h5" fontWeight="600" mb="10px">
+                        <Typography
+                            variant="h4"
+                            fontWeight="700"
+                            mb="20px"
+                            color={colors.greenAccent[400]}
+                        >
                             Commentaire
                         </Typography>
-                        <Typography>{promo.commentaire}</Typography>
+                        <Divider sx={{ mb: "20px", backgroundColor: colors.grey[700] }} />
+                        <Typography variant="body1" lineHeight="1.8">
+                            {promo.commentaire}
+                        </Typography>
                     </Box>
                 )}
             </Box>
