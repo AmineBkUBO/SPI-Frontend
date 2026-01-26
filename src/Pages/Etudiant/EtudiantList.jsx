@@ -45,7 +45,7 @@ export default function EtudiantList({
     };
 
     const handleAdd = () => {
-        navigate("/etudiants/add");
+        navigate("/etudiant/add");
     };
 
     const columns = [

@@ -45,7 +45,7 @@ export default function PromotionList({
     const handleView = (anneePro) => navigate(`/promotion/${anneePro}`);
     const handleEdit = (anneePro, siglePro) =>
         console.log("Edit promotion:", anneePro, siglePro);
-    const handleAdd = () => navigate("/promotions/add");
+    const handleAdd = () => navigate("/promotion/add");
 
     const columns = [
         {

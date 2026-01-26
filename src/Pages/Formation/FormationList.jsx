@@ -51,7 +51,7 @@ export default function FormationList({
     };
 
     const handleAddFormation = () => {
-        navigate("/formations/add");
+        navigate("/formation/add");
     };
 
     const columns = [
