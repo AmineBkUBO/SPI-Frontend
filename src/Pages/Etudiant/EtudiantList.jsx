@@ -6,7 +6,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
-import useEtudiantStore from "../../stores/etudiantStore";
+import useEtudiantStore from "../../Store/etudiantStore";
 
 export default function EtudiantList({ title = "Etudiants", subtitle = "Managing Students" }) {
     const theme = useTheme();
@@ -68,7 +68,12 @@ export default function EtudiantList({ title = "Etudiants", subtitle = "Managing
                         "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
-                    <DataGrid rows={etudiants} columns={columns} pageSize={10} />
+                    <DataGrid
+                        rows={etudiants}
+                        columns={columns}
+                        pageSize={10}
+                        getRowId={(row) => row.noEtudiantNat} // <-- use a unique field from your data
+                    />
                 </Box>
             )}
         </Box>

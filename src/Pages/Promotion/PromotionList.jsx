@@ -68,7 +68,9 @@ export default function PromotionList({ title = "Promotions", subtitle = "Managi
                         "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
-                    <DataGrid rows={promotions} columns={columns} pageSize={10} />
+                    <DataGrid rows={promotions} columns={columns} pageSize={10}
+                              getRowId={(row) => row.anneePro} // <-- use a unique field from your data
+                    />
                 </Box>
             )}
         </Box>

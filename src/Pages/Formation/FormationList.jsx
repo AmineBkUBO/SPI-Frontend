@@ -68,7 +68,9 @@ export default function FormationList({ title = "Formations", subtitle = "Managi
                         "& .MuiDataGrid-footerContainer": { borderTop: "none", backgroundColor: colors.blueAccent[700] },
                     }}
                 >
-                    <DataGrid rows={formations} columns={columns} pageSize={10} />
+                    <DataGrid rows={formations} columns={columns} pageSize={10}
+                              getRowId={(row) => row.codeFormation}
+                    />
                 </Box>
             )}
         </Box>
