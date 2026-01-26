@@ -49,16 +49,16 @@ function App() {
 
 
               <Route path="/etudiants" element={<EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />} />
-              <Route path="/etudiants/:slug" element={<EtudiantDetail />} />
+              <Route path="/etudiant/:slug" element={<EtudiantDetail />} />
 
               <Route path="/promotions" element={<PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />} />
-              <Route path="/promotions/:slug" element={<PromotionDetail />} />
+              <Route path="/promotion/:slug" element={<PromotionDetail />} />
 
               <Route path="/formations" element={<FormationList title="FORMATIONS" subtitle="Liste des formations :" />} />
-              <Route path="/formations/:slug" element={<FormationDetail />} />
+              <Route path="/formation/:slug" element={<FormationDetail />} />
 
               <Route path="/enseignants" element={<EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />} />
-              <Route path="/enseignants/:slug" element={<EnseignantDetail />} />
+              <Route path="/enseignant/:slug" element={<EnseignantDetail />} />
 
 
 
