@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
@@ -24,62 +25,110 @@ import PromotionDetail from "./Pages/Promotion/PromotionDetails";
 import FormationDetail from "./Pages/Formation/FormationDetails";
 import EnseignantDetail from "./Pages/Enseignant/EnseignantDetails";
 
+// Page transition wrapper component
+import PageTransition from "./components/PageTransition";
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const location = useLocation();
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div className="app">
-          <Sidebar isSidebar={isSidebar} />
-          <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
+      <ColorModeContext.Provider value={colorMode}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <div className="app">
+            <Sidebar isSidebar={isSidebar} />
+            <main className="content">
+              <Topbar setIsSidebar={setIsSidebar} />
+              <AnimatePresence mode="wait">
+                <Routes location={location} key={location.pathname}>
+                  <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
 
-              <Route path="/etudiants" element={<EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />} />
+                  <Route
+                      path="/etudiants"
+                      element={
+                        <PageTransition>
+                          <EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />
+                        </PageTransition>
+                      }
+                  />
+                  <Route
+                      path="/etudiant/:slug"
+                      element={
+                        <PageTransition>
+                          <EtudiantDetail />
+                        </PageTransition>
+                      }
+                  />
 
-              <Route path="/promotions" element={<PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />} />
+                  <Route
+                      path="/promotions"
+                      element={
+                        <PageTransition>
+                          <PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />
+                        </PageTransition>
+                      }
+                  />
+                  <Route
+                      path="/promotion/:slug"
+                      element={
+                        <PageTransition>
+                          <PromotionDetail />
+                        </PageTransition>
+                      }
+                  />
 
-              <Route path="/formations" element={<FormationList title="FORMATIONS" subtitle="Liste des formations :" />} />
+                  <Route
+                      path="/formations"
+                      element={
+                        <PageTransition>
+                          <FormationList title="FORMATIONS" subtitle="Liste des formations :" />
+                        </PageTransition>
+                      }
+                  />
+                  <Route
+                      path="/formation/:slug"
+                      element={
+                        <PageTransition>
+                          <FormationDetail />
+                        </PageTransition>
+                      }
+                  />
 
-              <Route path="/enseignants" element={<EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />} />
+                  <Route
+                      path="/enseignants"
+                      element={
+                        <PageTransition>
+                          <EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />
+                        </PageTransition>
+                      }
+                  />
+                  <Route
+                      path="/enseignant/:slug"
+                      element={
+                        <PageTransition>
+                          <EnseignantDetail />
+                        </PageTransition>
+                      }
+                  />
 
-
-              <Route path="/etudiants" element={<EtudiantList title="ETUDIANTS" subtitle="Liste des étudiants :" />} />
-              <Route path="/etudiant/:slug" element={<EtudiantDetail />} />
-
-              <Route path="/promotions" element={<PromotionList title="PROMOTIONS" subtitle="Liste des promotions :" />} />
-              <Route path="/promotion/:slug" element={<PromotionDetail />} />
-
-              <Route path="/formations" element={<FormationList title="FORMATIONS" subtitle="Liste des formations :" />} />
-              <Route path="/formation/:slug" element={<FormationDetail />} />
-
-              <Route path="/enseignants" element={<EnseignantList title="ENSEIGNANTS" subtitle="Liste des enseignants :" />} />
-              <Route path="/enseignant/:slug" element={<EnseignantDetail />} />
-
-
-
-
-
-
-              <Route path="/team" element={<Team />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Bar />} />
-              <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/geography" element={<Geography />} />
-            </Routes>
-          </main>
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+                  <Route path="/team" element={<PageTransition><Team /></PageTransition>} />
+                  <Route path="/contacts" element={<PageTransition><Contacts /></PageTransition>} />
+                  <Route path="/invoices" element={<PageTransition><Invoices /></PageTransition>} />
+                  <Route path="/form" element={<PageTransition><Form /></PageTransition>} />
+                  <Route path="/bar" element={<PageTransition><Bar /></PageTransition>} />
+                  <Route path="/pie" element={<PageTransition><Pie /></PageTransition>} />
+                  <Route path="/line" element={<PageTransition><Line /></PageTransition>} />
+                  <Route path="/faq" element={<PageTransition><FAQ /></PageTransition>} />
+                  <Route path="/calendar" element={<PageTransition><Calendar /></PageTransition>} />
+                  <Route path="/geography" element={<PageTransition><Geography /></PageTransition>} />
+                </Routes>
+              </AnimatePresence>
+            </main>
+          </div>
+        </ThemeProvider>
+      </ColorModeContext.Provider>
   );
 }
 
