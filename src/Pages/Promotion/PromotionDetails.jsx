@@ -1,56 +1,94 @@
+// src/Pages/Promotion/PromotionDetail.jsx
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import {
+    Box,
+    Typography,
+    useTheme,
+    CircularProgress,
+} from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
+
 import Header from "../../components/Header";
-import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 
+import PersonIcon from "@mui/icons-material/Person";
+import SchoolIcon from "@mui/icons-material/School";
+import EventIcon from "@mui/icons-material/Event";
+import GroupsIcon from "@mui/icons-material/Groups";
+import EmailIcon from "@mui/icons-material/Email";
+import HomeIcon from "@mui/icons-material/Home";
+
+import usePromotionStore from "../../Store/promotionStore";
+import useEnseignantStore from "../../Store/enseignantStore";
+
 const PromotionDetail = () => {
-    const { slug } = useParams(); // Catch the dynamic URL part
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { slug } = useParams();
+
+    const { selectedPromotion, loading, error, fetchPromotionById } = usePromotionStore();
+    const {
+        selectedEnseignant,
+        loading: loadingEnseignant,
+        error: errorEnseignant,
+        fetchEnseignantById,
+    } = useEnseignantStore();
+
+    // Fetch promotion
+    useEffect(() => {
+        if (!slug) return;
+        fetchPromotionById(slug);
+    }, [slug, fetchPromotionById]);
+
+    // Fetch enseignant when promotion is loaded
+    useEffect(() => {
+        if (selectedPromotion?.noEnseignant?.id) {
+            fetchEnseignantById(selectedPromotion.noEnseignant.id);
+        }
+    }, [selectedPromotion, fetchEnseignantById]);
+
+    if (loading || loadingEnseignant) {
+        return (
+            <Box
+                height="80vh"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error || !selectedPromotion) {
+        return (
+            <Typography color="error" textAlign="center">
+                Impossible de charger la promotion
+            </Typography>
+        );
+    }
+
+    const promo = selectedPromotion;
 
     return (
         <Box m="20px">
             {/* HEADER */}
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Header
-                    title={`Promotion: ${slug}`}
-                    subtitle={`Détails et statistiques pour la promotion "${slug}"`}
-                />
-                <Box>
-                    <Button
-                        sx={{
-                            backgroundColor: colors.blueAccent[700],
-                            color: colors.grey[100],
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            padding: "10px 20px",
-                        }}
-                    >
-                        <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-                        Download Reports
-                    </Button>
-                </Box>
-            </Box>
+            <Header
+                title={`Promotion: ${promo.siglePro || slug}`}
+                subtitle={`Détails et informations pour ${promo.siglePro || slug}`}
+            />
 
-            {/* GRID & CHARTS */}
+            {/* GRID */}
             <Box
                 display="grid"
                 gridTemplateColumns="repeat(12, 1fr)"
                 gridAutoRows="140px"
                 gap="20px"
+                mt="20px"
             >
-                {/* STAT BOXES */}
+                {/* SIGLE */}
                 <Box
                     gridColumn="span 3"
                     backgroundColor={colors.primary[400]}
@@ -59,160 +97,147 @@ const PromotionDetail = () => {
                     justifyContent="center"
                 >
                     <StatBox
-                        title="12,361"
-                        subtitle="Emails Sent"
-                        progress="0.75"
-                        increase="+14%"
-                        icon={<EmailIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-                    />
-                </Box>
-                <Box
-                    gridColumn="span 3"
-                    backgroundColor={colors.primary[400]}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <StatBox
-                        title="431,225"
-                        subtitle="Sales Obtained"
-                        progress="0.50"
-                        increase="+21%"
-                        icon={<PointOfSaleIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-                    />
-                </Box>
-                <Box
-                    gridColumn="span 3"
-                    backgroundColor={colors.primary[400]}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <StatBox
-                        title="32,441"
-                        subtitle="New Clients"
-                        progress="0.30"
-                        increase="+5%"
-                        icon={<PersonAddIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
-                    />
-                </Box>
-                <Box
-                    gridColumn="span 3"
-                    backgroundColor={colors.primary[400]}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <StatBox
-                        title="1,325,134"
-                        subtitle="Traffic Received"
-                        progress="0.80"
-                        increase="+43%"
-                        icon={<TrafficIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                        title={promo.siglePro || "—"}
+                        subtitle="Sigle"
+                        icon={<SchoolIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
                     />
                 </Box>
 
-                {/* REVENUE LINE CHART */}
-                <Box gridColumn="span 8" gridRow="span 2" backgroundColor={colors.primary[400]}>
-                    <Box
-                        mt="25px"
-                        p="0 30px"
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                    >
-                        <Box>
-                            <Typography variant="h5" fontWeight="600" color={colors.grey[100]}>
-                                Revenue Generated
-                            </Typography>
-                            <Typography variant="h3" fontWeight="bold" color={colors.greenAccent[500]}>
-                                $59,342.32
-                            </Typography>
-                        </Box>
-                        <Box>
-                            <IconButton>
-                                <DownloadOutlinedIcon
-                                    sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                                />
-                            </IconButton>
-                        </Box>
-                    </Box>
-                    <Box height="250px" m="-20px 0 0 0">
-                        <LineChart isDashboard={true} />
-                    </Box>
+                {/* ANNÉE */}
+                <Box
+                    gridColumn="span 3"
+                    backgroundColor={colors.primary[400]}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <StatBox
+                        title={promo.anneePro || "—"}
+                        subtitle="Année"
+                        icon={<EventIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                    />
                 </Box>
 
-                {/* RECENT TRANSACTIONS */}
+                {/* NOMBRE D'ÉTUDIANTS */}
+                <Box
+                    gridColumn="span 3"
+                    backgroundColor={colors.primary[400]}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <StatBox
+                        title={promo.nbEtuSouhaite || 0}
+                        subtitle="Nb Étudiants"
+                        icon={<GroupsIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                    />
+                </Box>
+
+                {/* ÉTAT PRÉSELECTION */}
+                <Box
+                    gridColumn="span 3"
+                    backgroundColor={colors.primary[400]}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <StatBox
+                        title={promo.etatPreselection || "—"}
+                        subtitle="État Préselection"
+                        icon={<PersonIcon sx={{ color: colors.greenAccent[600], fontSize: "26px" }} />}
+                    />
+                </Box>
+
+                {/* ENSEIGNANT RESPONSABLE */}
                 <Box
                     gridColumn="span 4"
                     gridRow="span 2"
                     backgroundColor={colors.primary[400]}
-                    overflow="auto"
+                    p="25px"
                 >
-                    <Box
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        borderBottom={`4px solid ${colors.primary[500]}`}
-                        colors={colors.grey[100]}
-                        p="15px"
-                    >
-                        <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-                            Recent Transactions
-                        </Typography>
-                    </Box>
-                    {mockTransactions.map((transaction, i) => (
-                        <Box
-                            key={`${transaction.txId}-${i}`}
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            borderBottom={`4px solid ${colors.primary[500]}`}
-                            p="15px"
-                        >
-                            <Box>
-                                <Typography color={colors.greenAccent[500]} variant="h5" fontWeight="600">
-                                    {transaction.txId}
-                                </Typography>
-                                <Typography color={colors.grey[100]}>{transaction.user}</Typography>
-                            </Box>
-                            <Box color={colors.grey[100]}>{transaction.date}</Box>
-                            <Box backgroundColor={colors.greenAccent[500]} p="5px 10px" borderRadius="4px">
-                                ${transaction.cost}
-                            </Box>
+                    <Typography variant="h5" fontWeight="600" mb="15px">
+                        Enseignant Responsable
+                    </Typography>
+                    {errorEnseignant && <Typography color="error">{errorEnseignant}</Typography>}
+                    {!selectedEnseignant && !errorEnseignant && (
+                        <Typography>Chargement...</Typography>
+                    )}
+                    {selectedEnseignant && (
+                        <Box>
+                            <Typography>
+                                👤 {selectedEnseignant.prenom} {selectedEnseignant.nom}
+                            </Typography>
+                            <Typography>
+                                📞 {selectedEnseignant.encUboTel || "Pas de Mail Perso"}
+                            </Typography>
+                            <Typography>
+                                📞 {selectedEnseignant.encPersoTel || "Pas de Mail Perso"}
+                            </Typography>
+                            <Typography>
+                                📧 {selectedEnseignant.email || "Pas de Mail Perso"}
+                            </Typography>
+                            <Typography>
+                                📧 {selectedEnseignant.encUboEmail || "—"}
+                            </Typography>
+                            <Typography>
+                                🏷 Type : {selectedEnseignant.type || "—"}
+                            </Typography>
+                            <Typography>
+                                🏠 Type : {selectedEnseignant.adresse + ", " + selectedEnseignant.ville  + ", " + selectedEnseignant.cp || "—"}
+                            </Typography>
+
                         </Box>
-                    ))}
+                    )}
                 </Box>
 
-                {/* OTHER CHARTS */}
-                <Box gridColumn="span 4" gridRow="span 2" backgroundColor={colors.primary[400]} p="30px">
-                    <Typography variant="h5" fontWeight="600">
-                        Campaign
+                {/* DATES */}
+                <Box
+                    gridColumn="span 4"
+                    gridRow="span 2"
+                    backgroundColor={colors.primary[400]}
+                    p="25px"
+                >
+                    <Typography variant="h5" fontWeight="600" mb="15px">
+                        Dates Importantes
                     </Typography>
-                    <Box display="flex" flexDirection="column" alignItems="center" mt="25px">
-                        <ProgressCircle size="125" />
-                        <Typography variant="h5" color={colors.greenAccent[500]} sx={{ mt: "15px" }}>
-                            $48,352 revenue generated
+                    <Typography>Rentrée : {promo.dateRentree || "—"}</Typography>
+                    <Typography>Date réponse LP : {promo.dateReponseLp || "—"}</Typography>
+                </Box>
+
+                {/* LIEU RENTRÉE */}
+                <Box
+                    gridColumn="span 4"
+                    gridRow="span 2"
+                    backgroundColor={colors.primary[400]}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <ProgressCircle size="125" />
+                    <Typography
+                        variant="h5"
+                        color={colors.greenAccent[500]}
+                        mt="15px"
+                    >
+                        {promo.lieuRentree || "Non défini"}
+                    </Typography>
+                </Box>
+
+                {/* COMMENTAIRE */}
+                {promo.commentaire && (
+                    <Box
+                        gridColumn="span 12"
+                        backgroundColor={colors.primary[400]}
+                        p="20px"
+                        borderRadius="8px"
+                    >
+                        <Typography variant="h5" fontWeight="600" mb="10px">
+                            Commentaire
                         </Typography>
-                        <Typography>Includes extra misc expenditures and costs</Typography>
+                        <Typography>{promo.commentaire}</Typography>
                     </Box>
-                </Box>
-                <Box gridColumn="span 4" gridRow="span 2" backgroundColor={colors.primary[400]}>
-                    <Typography variant="h5" fontWeight="600" sx={{ padding: "30px 30px 0 30px" }}>
-                        Sales Quantity
-                    </Typography>
-                    <Box height="250px" mt="-20px">
-                        <BarChart isDashboard={true} />
-                    </Box>
-                </Box>
-                <Box gridColumn="span 4" gridRow="span 2" backgroundColor={colors.primary[400]} padding="30px">
-                    <Typography variant="h5" fontWeight="600" sx={{ marginBottom: "15px" }}>
-                        Geography Based Traffic
-                    </Typography>
-                    <Box height="200px">
-                        <GeographyChart isDashboard={true} />
-                    </Box>
-                </Box>
+                )}
             </Box>
         </Box>
     );

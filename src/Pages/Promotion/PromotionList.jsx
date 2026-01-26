@@ -29,8 +29,8 @@ export default function PromotionList({
         fetchPromotions();
     }, [fetchPromotions]);
 
-    const handleView = (anneePro, siglePro) => {
-        navigate(`/promotion/${anneePro}/${siglePro}`);
+    const handleView = (anneePro) => {
+        navigate(`/promotion/${anneePro}`);
     };
 
     const handleEdit = (anneePro, siglePro) => {
@@ -88,7 +88,7 @@ export default function PromotionList({
             renderCell: ({ row }) => (
                 <Box display="flex" gap="8px">
                     <IconButton
-                        onClick={() => handleView(row.anneePro, row.siglePro)}
+                        onClick={() => handleView(row.anneePro )}
                         sx={{ color: colors.greenAccent[600] }}
                     >
                         <VisibilityOutlinedIcon />
@@ -150,7 +150,7 @@ export default function PromotionList({
                         columns={columns}
                         pageSize={10}
                         rowsPerPageOptions={[10, 20, 50]}
-                        getRowId={(row) => `${row.anneePro}-${row.siglePro}`}
+                        getRowId={(row) => `${row.anneePro}`}
                     />
                 </Box>
             )}
