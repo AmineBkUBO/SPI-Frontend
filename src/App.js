@@ -27,6 +27,10 @@ import EnseignantDetail from "./Pages/Enseignant/EnseignantDetails";
 
 // Page transition wrapper component
 import PageTransition from "./components/PageTransition";
+import CreateEnseignantForm from "./Pages/Enseignant/CreateEnseignantForm";
+import CreateFormationForm from "./Pages/Formation/CreateFormationForm";
+import CreatePromotionForm from "./Pages/Promotion/CreatePromotionForm";
+import CreateEtudiantForm from "./Pages/Etudiant/CreateEtudiantForm";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -61,6 +65,14 @@ function App() {
                         </PageTransition>
                       }
                   />
+                  <Route
+                      path="/etudiant/add"
+                      element={
+                        <PageTransition>
+                          <CreateEtudiantForm />
+                        </PageTransition>
+                      }
+                  />
 
                   <Route
                       path="/promotions"
@@ -75,6 +87,14 @@ function App() {
                       element={
                         <PageTransition>
                           <PromotionDetail />
+                        </PageTransition>
+                      }
+                  />
+                  <Route
+                      path="/promotion/add"
+                      element={
+                        <PageTransition>
+                          <CreatePromotionForm />
                         </PageTransition>
                       }
                   />
@@ -95,6 +115,14 @@ function App() {
                         </PageTransition>
                       }
                   />
+                  <Route
+                    path="/formation/add"
+                    element={
+                      <PageTransition>
+                        <CreateFormationForm />
+                      </PageTransition>
+                    }
+                />
 
                   <Route
                       path="/enseignants"
@@ -112,6 +140,15 @@ function App() {
                         </PageTransition>
                       }
                   />
+                  <Route
+                      path="/enseignant/add"
+                      element={
+                        <PageTransition>
+                          <CreateEnseignantForm />
+                        </PageTransition>
+                      }
+                  />
+
 
                   <Route path="/team" element={<PageTransition><Team /></PageTransition>} />
                   <Route path="/contacts" element={<PageTransition><Contacts /></PageTransition>} />
