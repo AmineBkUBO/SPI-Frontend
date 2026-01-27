@@ -3,6 +3,7 @@ import {
     Button,
     TextField,
     MenuItem,
+    Typography,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -22,7 +23,19 @@ const initialValues = {
     ville: "",
     pays: "",
     telPort: "",
+    encPersoTel: "",
+    encUboTel: "",
     encPersoEmail: "",
+    encUboEmail: "",
+    intNoInsee: "",
+    intSocNom: "",
+    intSocAdresse: "",
+    intSocCp: "",
+    intSocVille: "",
+    intSocPays: "",
+    intFonction: "",
+    intProfEmail: "",
+    intProfTel: "",
 };
 
 /* ---------------- VALIDATION ---------------- */
@@ -38,8 +51,11 @@ const checkoutSchema = yup.object().shape({
     pays: yup.string().required("Required"),
     telPort: yup.string(),
     encPersoEmail: yup.string().email("Invalid email"),
+    encUboEmail: yup.string().email("Invalid email"),
+    intProfEmail: yup.string().email("Invalid email"),
 });
 
+/* ---------------- COMPONENT ---------------- */
 const CreateEnseignantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const createEnseignant = useEnseignantStore(
@@ -85,11 +101,12 @@ const CreateEnseignantForm = () => {
                                 },
                             }}
                         >
+                            {/* ---------------- BASIC FIELDS ---------------- */}
                             <TextField
                                 fullWidth
                                 variant="filled"
                                 type="number"
-                                label="N° Enseignant"
+                                label="ID Enseignant"
                                 name="id"
                                 value={values.id}
                                 onChange={handleChange}
@@ -99,7 +116,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
-                            {/* -------- TYPE -------- */}
+                            {/* Type */}
                             <TextField
                                 select
                                 fullWidth
@@ -120,7 +137,7 @@ const CreateEnseignantForm = () => {
                                 </MenuItem>
                             </TextField>
 
-                            {/* -------- SEXE -------- */}
+                            {/* Sexe */}
                             <TextField
                                 select
                                 fullWidth
@@ -238,6 +255,145 @@ const CreateEnseignantForm = () => {
                                 }
                                 sx={{ gridColumn: "span 4" }}
                             />
+
+                            {/* ---------------- OPTIONAL FIELDS ---------------- */}
+                            <Box
+                                gridColumn="span 4"
+                                mt={4}
+                                mb={1}
+                                borderBottom="1px solid #ccc"
+                            >
+                                <Typography variant="h6">
+                                    Optional Fields
+                                </Typography>
+                            </Box>
+
+                            {/* UBO fields for ENC only */}
+                            {values.type === "ENC" && (
+                                <>
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Téléphone UBO"
+                                        name="encUboTel"
+                                        value={values.encUboTel}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Email UBO"
+                                        name="encUboEmail"
+                                        value={values.encUboEmail}
+                                        onChange={handleChange}
+                                        error={
+                                            touched.encUboEmail &&
+                                            !!errors.encUboEmail
+                                        }
+                                        helperText={
+                                            touched.encUboEmail &&
+                                            errors.encUboEmail
+                                        }
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                </>
+                            )}
+
+                            {/* Company fields for INT only */}
+                            {values.type === "INT" && (
+                                <>
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="No INSEE"
+                                        name="intNoInsee"
+                                        value={values.intNoInsee}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Nom Société"
+                                        name="intSocNom"
+                                        value={values.intSocNom}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Adresse Société"
+                                        name="intSocAdresse"
+                                        value={values.intSocAdresse}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Code Postal Société"
+                                        name="intSocCp"
+                                        value={values.intSocCp}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 1" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Ville Société"
+                                        name="intSocVille"
+                                        value={values.intSocVille}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 1" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Pays Société"
+                                        name="intSocPays"
+                                        value={values.intSocPays}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Fonction"
+                                        name="intFonction"
+                                        value={values.intFonction}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Email Professionnel"
+                                        name="intProfEmail"
+                                        value={values.intProfEmail}
+                                        onChange={handleChange}
+                                        error={
+                                            touched.intProfEmail &&
+                                            !!errors.intProfEmail
+                                        }
+                                        helperText={
+                                            touched.intProfEmail &&
+                                            errors.intProfEmail
+                                        }
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="filled"
+                                        label="Téléphone Professionnel"
+                                        name="intProfTel"
+                                        value={values.intProfTel}
+                                        onChange={handleChange}
+                                        sx={{ gridColumn: "span 2" }}
+                                    />
+                                </>
+                            )}
                         </Box>
 
                         <Box display="flex" justifyContent="end" mt="20px">
