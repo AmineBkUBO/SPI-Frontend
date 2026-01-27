@@ -1,49 +1,121 @@
-import { Box, Button, TextField } from "@mui/material";
+import {
+    Box,
+    Button,
+    TextField,
+    MenuItem,
+    Typography,
+} from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useEffect, useState } from "react";
 import Header from "../../components/Header";
+import api from "../../Config/api";
+import useEtudiantStore from "../../Store/etudiantStore";
 
+/* ---------------- INITIAL VALUES ---------------- */
+const initialValues = {
+    noEtudiantNat: "",
+    anneePro: "",
+    codeCom: "",
+    noEtudiantUbo: "",
+    sexe: "H", // default to Homme
+    nom: "",
+    prenom: "",
+    dateNaissance: "",
+    lieuNaissance: "",
+    situation: "CEL", // default to Célibataire
+    nationalite: "Française",
+    telPort: "",
+    telFixe: "",
+    email: "",
+    actuAdresse: "",
+    actuCp: "",
+    actuVille: "",
+    actuPays: "",
+    permAdresse: "",
+    permCp: "",
+    permVille: "",
+    permPays: "",
+    dernierDiplome: "",
+    universite: "",
+    sigleEtu: "",
+    compteCri: "",
+    uboEmail: "",
+    grpeAnglais: "",
+    abandonMotif: "",
+    abandonDate: "",
+    estDiplome: "N",
+};
 
+/* ---------------- VALIDATION ---------------- */
 const phoneRegExp =
     /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
 
 const checkoutSchema = yup.object().shape({
-    firstName: yup.string().required("required"),
-    lastName: yup.string().required("required"),
-    email: yup.string().email("invalid email").required("required"),
-    contact: yup
+    noEtudiantNat: yup.string().required("Required"),
+    anneePro: yup.string().required("Promotion is required"),
+    sexe: yup.string().oneOf(["H", "F", "G", "L"]).required("Required"),
+    nom: yup.string().required("Required"),
+    prenom: yup.string().required("Required"),
+    dateNaissance: yup.date().required("Required"),
+    lieuNaissance: yup.string().required("Required"),
+    situation: yup.string().oneOf(["CEL", "ENC"]).required("Required"),
+    permAdresse: yup.string().required("Required"),
+    permCp: yup.string().required("Required"),
+    permVille: yup.string().required("Required"),
+    permPays: yup.string().required("Required"),
+    dernierDiplome: yup.string().required("Required"),
+    universite: yup.string().required("Required"),
+    sigleEtu: yup.string().required("Required"),
+    compteCri: yup.string().required("Required"),
+    email: yup.string().email("Invalid email"),
+    telPort: yup
         .string()
-        .matches(phoneRegExp, "Phone number is not valid")
-        .required("required"),
-    address1: yup.string().required("required"),
-    address2: yup.string().required("required"),
+        .matches(phoneRegExp, "Phone number is not valid"),
 });
-const initialValues = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    contact: "",
-    address1: "",
-    address2: "",
-};
 
-
+/* ---------------- COMPONENT ---------------- */
 const CreateEtudiantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const [promotions, setPromotions] = useState([]);
+    const createEtudiant = useEtudiantStore((state) => state.createEtudiant);
 
-    const handleFormSubmit = (values) => {
-        console.log(values);
+    /* ---------------- FETCH PROMOTIONS ---------------- */
+    useEffect(() => {
+        const fetchPromotions = async () => {
+            try {
+                const res = await api.get("/promotions");
+                setPromotions(res.data);
+            } catch (err) {
+                console.error("Fetch promotions error:", err);
+            }
+        };
+        fetchPromotions();
+    }, []);
+
+    /* ---------------- SUBMIT ---------------- */
+    const handleFormSubmit = async (values) => {
+        // Transform promotion to object as backend expects
+        const payload = {
+            ...values,
+            anneePro: { anneePro: values.anneePro },
+        };
+        console.log("[CreateEtudiant] payload =", payload);
+        await createEtudiant(payload);
     };
 
     return (
         <Box m="20px">
-            <Header title="CREATE ETUDIANT" subtitle="Créer un nouveau Etudiant" />
+            <Header
+                title="CREATE ETUDIANT"
+                subtitle="Créer un nouveau étudiant"
+            />
 
             <Formik
-                onSubmit={handleFormSubmit}
                 initialValues={initialValues}
                 validationSchema={checkoutSchema}
+                onSubmit={handleFormSubmit}
             >
                 {({
                       values,
@@ -54,96 +126,361 @@ const CreateEtudiantForm = () => {
                       handleSubmit,
                   }) => (
                     <form onSubmit={handleSubmit}>
+                        {/* ---------------- REQUIRED FIELDS ---------------- */}
                         <Box
                             display="grid"
                             gap="30px"
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
-                                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                                "& > div": {
+                                    gridColumn: isNonMobile
+                                        ? undefined
+                                        : "span 4",
+                                },
                             }}
                         >
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="First Name"
-                                onBlur={handleBlur}
+                                label="Numéro Étudiant National"
+                                name="noEtudiantNat"
+                                value={values.noEtudiantNat}
                                 onChange={handleChange}
-                                value={values.firstName}
-                                name="firstName"
-                                error={!!touched.firstName && !!errors.firstName}
-                                helperText={touched.firstName && errors.firstName}
+                                onBlur={handleBlur}
+                                error={touched.noEtudiantNat && !!errors.noEtudiantNat}
+                                helperText={touched.noEtudiantNat && errors.noEtudiantNat}
                                 sx={{ gridColumn: "span 2" }}
                             />
+
+                            {/* Promotion */}
+                            <TextField
+                                select
+                                fullWidth
+                                variant="filled"
+                                label="Promotion"
+                                name="anneePro"
+                                value={values.anneePro}
+                                onChange={handleChange}
+                                error={touched.anneePro && !!errors.anneePro}
+                                helperText={touched.anneePro && errors.anneePro}
+                                sx={{ gridColumn: "span 2" }}
+                            >
+                                {promotions.map((p) => (
+                                    <MenuItem key={p.anneePro} value={p.anneePro}>
+                                        {p.anneePro} - {p.codeFormation?.nomFormation}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            {/* Sexe */}
+                            <TextField
+                                select
+                                fullWidth
+                                variant="filled"
+                                label="Sexe"
+                                name="sexe"
+                                value={values.sexe}
+                                onChange={handleChange}
+                                error={touched.sexe && !!errors.sexe}
+                                helperText={touched.sexe && errors.sexe}
+                                sx={{ gridColumn: "span 2" }}
+                            >
+                                <MenuItem value="H">Homme</MenuItem>
+                                <MenuItem value="F">Femme</MenuItem>
+                                <MenuItem value="G">Gay</MenuItem>
+                                <MenuItem value="L">Lesbian</MenuItem>
+                            </TextField>
+
+                            {/* Situation */}
+                            <TextField
+                                select
+                                fullWidth
+                                variant="filled"
+                                label="Situation"
+                                name="situation"
+                                value={values.situation}
+                                onChange={handleChange}
+                                error={touched.situation && !!errors.situation}
+                                helperText={touched.situation && errors.situation}
+                                sx={{ gridColumn: "span 2" }}
+                            >
+                                <MenuItem value="CEL">Célibataire</MenuItem>
+                                <MenuItem value="ENC">En couple</MenuItem>
+                            </TextField>
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Last Name"
-                                onBlur={handleBlur}
+                                label="Nom"
+                                name="nom"
+                                value={values.nom}
                                 onChange={handleChange}
-                                value={values.lastName}
-                                name="lastName"
-                                error={!!touched.lastName && !!errors.lastName}
-                                helperText={touched.lastName && errors.lastName}
+                                error={touched.nom && !!errors.nom}
+                                helperText={touched.nom && errors.nom}
                                 sx={{ gridColumn: "span 2" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
+                                label="Prénom"
+                                name="prenom"
+                                value={values.prenom}
+                                onChange={handleChange}
+                                error={touched.prenom && !!errors.prenom}
+                                helperText={touched.prenom && errors.prenom}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                type="date"
+                                label="Date de Naissance"
+                                name="dateNaissance"
+                                InputLabelProps={{ shrink: true }}
+                                value={values.dateNaissance}
+                                onChange={handleChange}
+                                error={touched.dateNaissance && !!errors.dateNaissance}
+                                helperText={touched.dateNaissance && errors.dateNaissance}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Lieu de Naissance"
+                                name="lieuNaissance"
+                                value={values.lieuNaissance}
+                                onChange={handleChange}
+                                error={touched.lieuNaissance && !!errors.lieuNaissance}
+                                helperText={touched.lieuNaissance && errors.lieuNaissance}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Téléphone Portable"
+                                name="telPort"
+                                value={values.telPort}
+                                onChange={handleChange}
+                                error={touched.telPort && !!errors.telPort}
+                                helperText={touched.telPort && errors.telPort}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
                                 label="Email"
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                value={values.email}
                                 name="email"
-                                error={!!touched.email && !!errors.email}
+                                value={values.email}
+                                onChange={handleChange}
+                                error={touched.email && !!errors.email}
                                 helperText={touched.email && errors.email}
                                 sx={{ gridColumn: "span 4" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Contact Number"
-                                onBlur={handleBlur}
+                                label="Adresse Permanente"
+                                name="permAdresse"
+                                value={values.permAdresse}
                                 onChange={handleChange}
-                                value={values.contact}
-                                name="contact"
-                                error={!!touched.contact && !!errors.contact}
-                                helperText={touched.contact && errors.contact}
-                                sx={{ gridColumn: "span 4" }}
+                                error={touched.permAdresse && !!errors.permAdresse}
+                                helperText={touched.permAdresse && errors.permAdresse}
+                                sx={{ gridColumn: "span 2" }}
                             />
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Address 1"
-                                onBlur={handleBlur}
+                                label="Code Postal Permanent"
+                                name="permCp"
+                                value={values.permCp}
                                 onChange={handleChange}
-                                value={values.address1}
-                                name="address1"
-                                error={!!touched.address1 && !!errors.address1}
-                                helperText={touched.address1 && errors.address1}
-                                sx={{ gridColumn: "span 4" }}
+                                error={touched.permCp && !!errors.permCp}
+                                helperText={touched.permCp && errors.permCp}
+                                sx={{ gridColumn: "span 1" }}
                             />
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Address 2"
-                                onBlur={handleBlur}
+                                label="Ville Permanente"
+                                name="permVille"
+                                value={values.permVille}
                                 onChange={handleChange}
-                                value={values.address2}
-                                name="address2"
-                                error={!!touched.address2 && !!errors.address2}
-                                helperText={touched.address2 && errors.address2}
-                                sx={{ gridColumn: "span 4" }}
+                                error={touched.permVille && !!errors.permVille}
+                                helperText={touched.permVille && errors.permVille}
+                                sx={{ gridColumn: "span 1" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Pays Permanent"
+                                name="permPays"
+                                value={values.permPays}
+                                onChange={handleChange}
+                                error={touched.permPays && !!errors.permPays}
+                                helperText={touched.permPays && errors.permPays}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Dernier Diplôme"
+                                name="dernierDiplome"
+                                value={values.dernierDiplome}
+                                onChange={handleChange}
+                                error={touched.dernierDiplome && !!errors.dernierDiplome}
+                                helperText={touched.dernierDiplome && errors.dernierDiplome}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Université"
+                                name="universite"
+                                value={values.universite}
+                                onChange={handleChange}
+                                error={touched.universite && !!errors.universite}
+                                helperText={touched.universite && errors.universite}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Sigle Étudiant"
+                                name="sigleEtu"
+                                value={values.sigleEtu}
+                                onChange={handleChange}
+                                error={touched.sigleEtu && !!errors.sigleEtu}
+                                helperText={touched.sigleEtu && errors.sigleEtu}
+                                sx={{ gridColumn: "span 1" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Compte CRI"
+                                name="compteCri"
+                                value={values.compteCri}
+                                onChange={handleChange}
+                                error={touched.compteCri && !!errors.compteCri}
+                                helperText={touched.compteCri && errors.compteCri}
+                                sx={{ gridColumn: "span 1" }}
                             />
                         </Box>
+
+                        {/* ---------------- OPTIONAL FIELDS ---------------- */}
+                        <Box
+                            gridColumn="span 4"
+                            mt={4}
+                            mb={1}
+                            borderBottom="1px solid #ccc"
+                        >
+                            <Typography variant="h6">Optional Fields</Typography>
+                        </Box>
+
+                        <Box
+                            display="grid"
+                            gap="30px"
+                            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                            sx={{
+                                "& > div": {
+                                    gridColumn: isNonMobile
+                                        ? undefined
+                                        : "span 4",
+                                },
+                            }}
+                        >
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Adresse Actuelle"
+                                name="actuAdresse"
+                                value={values.actuAdresse}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Code Postal Actuel"
+                                name="actuCp"
+                                value={values.actuCp}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 1" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Ville Actuelle"
+                                name="actuVille"
+                                value={values.actuVille}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 1" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Pays Actuel"
+                                name="actuPays"
+                                value={values.actuPays}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="UBO Email"
+                                name="uboEmail"
+                                value={values.uboEmail}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Groupe Anglais"
+                                name="grpeAnglais"
+                                value={values.grpeAnglais}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Abandon Motif"
+                                name="abandonMotif"
+                                value={values.abandonMotif}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                type="date"
+                                label="Date Abandon"
+                                name="abandonDate"
+                                InputLabelProps={{ shrink: true }}
+                                value={values.abandonDate}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+                        </Box>
+
                         <Box display="flex" justifyContent="end" mt="20px">
-                            <Button type="submit" color="secondary" variant="contained">
-                                Create New User
+                            <Button type="submit" color="success" variant="contained">
+                                Create Étudiant
                             </Button>
                         </Box>
                     </form>
@@ -152,7 +489,5 @@ const CreateEtudiantForm = () => {
         </Box>
     );
 };
-
-
 
 export default CreateEtudiantForm;
