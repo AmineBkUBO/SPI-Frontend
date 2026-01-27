@@ -14,6 +14,7 @@ import { useState } from "react";
 
 import Header from "../../components/Header";
 import useFormationStore from "../../Store/formationStore";
+import {useParams} from "react-router-dom";
 
 /* ===================== VALIDATION ===================== */
 
@@ -55,6 +56,7 @@ const CreateFormationForm = () => {
     const createFormation = useFormationStore(
         (state) => state.createFormation
     );
+    const {slug} = useParams();
 
     const [successOpen, setSuccessOpen] = useState(false);
     const [errorOpen, setErrorOpen] = useState(false);

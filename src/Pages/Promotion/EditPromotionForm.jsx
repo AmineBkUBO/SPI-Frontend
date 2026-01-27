@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import api from "../../Config/api";
 import usePromotionStore from "../../Store/promotionStore";
+import {useParams} from "react-router-dom";
 
 /* ================= INITIAL VALUES ================= */
 
@@ -51,6 +52,8 @@ const checkoutSchema = yup.object().shape({
 const CreatePromotionForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const createPromotion = usePromotionStore((state) => state.createPromotion);
+    const {slug} = useParams();
+
 
     const [formations, setFormations] = useState([]);
     const [enseignants, setEnseignants] = useState([]);

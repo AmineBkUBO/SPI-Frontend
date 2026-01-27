@@ -10,6 +10,7 @@ import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import useEnseignantStore from "../../Store/enseignantStore";
+import {useParams} from "react-router-dom";
 
 /* ---------------- INITIAL VALUES ---------------- */
 const initialValues = {
@@ -61,6 +62,9 @@ const CreateEnseignantForm = () => {
     const createEnseignant = useEnseignantStore(
         (state) => state.createEnseignant
     );
+
+    const {slug} = useParams();
+
 
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {

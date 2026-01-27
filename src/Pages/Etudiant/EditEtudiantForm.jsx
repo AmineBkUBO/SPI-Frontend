@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import api from "../../Config/api";
 import useEtudiantStore from "../../Store/etudiantStore";
+import {useParams} from "react-router-dom";
 
 /* ---------------- INITIAL VALUES ---------------- */
 const initialValues = {
@@ -79,6 +80,9 @@ const checkoutSchema = yup.object().shape({
 const CreateEtudiantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [promotions, setPromotions] = useState([]);
+    const {slug} = useParams();
+
+
     const createEtudiant = useEtudiantStore((state) => state.createEtudiant);
 
     /* ---------------- FETCH PROMOTIONS ---------------- */
