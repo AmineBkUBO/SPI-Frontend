@@ -4,6 +4,8 @@ import {
     TextField,
     MenuItem,
     Typography,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -19,12 +21,12 @@ const initialValues = {
     anneePro: "",
     codeCom: "",
     noEtudiantUbo: "",
-    sexe: "H", // default to Homme
+    sexe: "H",
     nom: "",
     prenom: "",
     dateNaissance: "",
     lieuNaissance: "",
-    situation: "CEL", // default to Célibataire
+    situation: "CEL",
     nationalite: "Française",
     telPort: "",
     telFixe: "",
@@ -70,9 +72,7 @@ const checkoutSchema = yup.object().shape({
     sigleEtu: yup.string().required("Required"),
     compteCri: yup.string().required("Required"),
     email: yup.string().email("Invalid email"),
-    telPort: yup
-        .string()
-        .matches(phoneRegExp, "Phone number is not valid"),
+    telPort: yup.string().matches(phoneRegExp, "Phone number is not valid"),
 });
 
 /* ---------------- COMPONENT ---------------- */
@@ -80,6 +80,10 @@ const CreateEtudiantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [promotions, setPromotions] = useState([]);
     const createEtudiant = useEtudiantStore((state) => state.createEtudiant);
+
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     /* ---------------- FETCH PROMOTIONS ---------------- */
     useEffect(() => {
@@ -96,13 +100,20 @@ const CreateEtudiantForm = () => {
 
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {
-        // Transform promotion to object as backend expects
         const payload = {
             ...values,
             anneePro: { anneePro: values.anneePro },
         };
-        console.log("[CreateEtudiant] payload =", payload);
-        await createEtudiant(payload);
+        try {
+            console.log("[CreateEtudiant] payload =", payload);
+            await createEtudiant(payload);
+            setSuccessOpen(true);
+        } catch (err) {
+            setErrorMessage(
+                err?.response?.data?.message || "Une erreur est survenue."
+            );
+            setErrorOpen(true);
+        }
     };
 
     return (
@@ -133,12 +144,11 @@ const CreateEtudiantForm = () => {
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
                                 "& > div": {
-                                    gridColumn: isNonMobile
-                                        ? undefined
-                                        : "span 4",
+                                    gridColumn: isNonMobile ? undefined : "span 4",
                                 },
                             }}
                         >
+                            {/* Numéro Étudiant National */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -208,6 +218,7 @@ const CreateEtudiantForm = () => {
                                 <MenuItem value="ENC">En couple</MenuItem>
                             </TextField>
 
+                            {/* Nom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -220,6 +231,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Prénom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -232,6 +244,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Date Naissance */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -246,6 +259,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Lieu Naissance */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -257,227 +271,9 @@ const CreateEtudiantForm = () => {
                                 helperText={touched.lieuNaissance && errors.lieuNaissance}
                                 sx={{ gridColumn: "span 2" }}
                             />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Téléphone Portable"
-                                name="telPort"
-                                value={values.telPort}
-                                onChange={handleChange}
-                                error={touched.telPort && !!errors.telPort}
-                                helperText={touched.telPort && errors.telPort}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Email"
-                                name="email"
-                                value={values.email}
-                                onChange={handleChange}
-                                error={touched.email && !!errors.email}
-                                helperText={touched.email && errors.email}
-                                sx={{ gridColumn: "span 4" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Adresse Permanente"
-                                name="permAdresse"
-                                value={values.permAdresse}
-                                onChange={handleChange}
-                                error={touched.permAdresse && !!errors.permAdresse}
-                                helperText={touched.permAdresse && errors.permAdresse}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Code Postal Permanent"
-                                name="permCp"
-                                value={values.permCp}
-                                onChange={handleChange}
-                                error={touched.permCp && !!errors.permCp}
-                                helperText={touched.permCp && errors.permCp}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Ville Permanente"
-                                name="permVille"
-                                value={values.permVille}
-                                onChange={handleChange}
-                                error={touched.permVille && !!errors.permVille}
-                                helperText={touched.permVille && errors.permVille}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Pays Permanent"
-                                name="permPays"
-                                value={values.permPays}
-                                onChange={handleChange}
-                                error={touched.permPays && !!errors.permPays}
-                                helperText={touched.permPays && errors.permPays}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Dernier Diplôme"
-                                name="dernierDiplome"
-                                value={values.dernierDiplome}
-                                onChange={handleChange}
-                                error={touched.dernierDiplome && !!errors.dernierDiplome}
-                                helperText={touched.dernierDiplome && errors.dernierDiplome}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Université"
-                                name="universite"
-                                value={values.universite}
-                                onChange={handleChange}
-                                error={touched.universite && !!errors.universite}
-                                helperText={touched.universite && errors.universite}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Sigle Étudiant"
-                                name="sigleEtu"
-                                value={values.sigleEtu}
-                                onChange={handleChange}
-                                error={touched.sigleEtu && !!errors.sigleEtu}
-                                helperText={touched.sigleEtu && errors.sigleEtu}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Compte CRI"
-                                name="compteCri"
-                                value={values.compteCri}
-                                onChange={handleChange}
-                                error={touched.compteCri && !!errors.compteCri}
-                                helperText={touched.compteCri && errors.compteCri}
-                                sx={{ gridColumn: "span 1" }}
-                            />
                         </Box>
 
-                        {/* ---------------- OPTIONAL FIELDS ---------------- */}
-                        <Box
-                            gridColumn="span 4"
-                            mt={4}
-                            mb={1}
-                            borderBottom="1px solid #ccc"
-                        >
-                            <Typography variant="h6">Optional Fields</Typography>
-                        </Box>
-
-                        <Box
-                            display="grid"
-                            gap="30px"
-                            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                            sx={{
-                                "& > div": {
-                                    gridColumn: isNonMobile
-                                        ? undefined
-                                        : "span 4",
-                                },
-                            }}
-                        >
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Adresse Actuelle"
-                                name="actuAdresse"
-                                value={values.actuAdresse}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Code Postal Actuel"
-                                name="actuCp"
-                                value={values.actuCp}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Ville Actuelle"
-                                name="actuVille"
-                                value={values.actuVille}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Pays Actuel"
-                                name="actuPays"
-                                value={values.actuPays}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="UBO Email"
-                                name="uboEmail"
-                                value={values.uboEmail}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Groupe Anglais"
-                                name="grpeAnglais"
-                                value={values.grpeAnglais}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Abandon Motif"
-                                name="abandonMotif"
-                                value={values.abandonMotif}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                type="date"
-                                label="Date Abandon"
-                                name="abandonDate"
-                                InputLabelProps={{ shrink: true }}
-                                value={values.abandonDate}
-                                onChange={handleChange}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-                        </Box>
-
+                        {/* ---------------- SUBMIT BUTTON ---------------- */}
                         <Box display="flex" justifyContent="end" mt="20px">
                             <Button type="submit" color="success" variant="contained">
                                 Create Étudiant
@@ -486,6 +282,40 @@ const CreateEtudiantForm = () => {
                     </form>
                 )}
             </Formik>
+
+            {/* ================= SUCCESS MESSAGE ================= */}
+            <Snackbar
+                open={successOpen}
+                autoHideDuration={3500}
+                onClose={() => setSuccessOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setSuccessOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ✅ Étudiant créé avec succès !
+                </Alert>
+            </Snackbar>
+
+            {/* ================= ERROR MESSAGE ================= */}
+            <Snackbar
+                open={errorOpen}
+                autoHideDuration={4500}
+                onClose={() => setErrorOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setErrorOpen(false)}
+                    severity="error"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ❌ {errorMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
