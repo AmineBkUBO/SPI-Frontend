@@ -1,24 +1,68 @@
-import { Box, Button, TextField } from "@mui/material";
+import {
+    Box,
+    Button,
+    TextField,
+    MenuItem,
+} from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
+import useEnseignantStore from "../../Store/enseignantStore";
+
+/* ---------------- INITIAL VALUES ---------------- */
+const initialValues = {
+    id: "",
+    type: "",
+    sexe: "",
+    nom: "",
+    prenom: "",
+    adresse: "",
+    cp: "",
+    ville: "",
+    pays: "",
+    telPort: "",
+    encPersoEmail: "",
+};
+
+/* ---------------- VALIDATION ---------------- */
+const checkoutSchema = yup.object().shape({
+    id: yup.number().required("Required"),
+    type: yup.string().oneOf(["INT", "ENC"]).required("Required"),
+    sexe: yup.string().oneOf(["H", "F", "G", "L"]).required("Required"),
+    nom: yup.string().required("Required"),
+    prenom: yup.string().required("Required"),
+    adresse: yup.string().required("Required"),
+    cp: yup.string().required("Required"),
+    ville: yup.string().required("Required"),
+    pays: yup.string().required("Required"),
+    telPort: yup.string(),
+    encPersoEmail: yup.string().email("Invalid email"),
+});
 
 const CreateEnseignantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const createEnseignant = useEnseignantStore(
+        (state) => state.createEnseignant
+    );
 
-    const handleFormSubmit = (values) => {
-        console.log(values);
+    /* ---------------- SUBMIT ---------------- */
+    const handleFormSubmit = async (values) => {
+        console.log("[CreateEnseignant] payload =", values);
+        await createEnseignant(values);
     };
 
     return (
         <Box m="20px">
-            <Header title="CREATE ENSEIGNANT" subtitle="Créer un nouveau Eneseignant" />
+            <Header
+                title="CREATE ENSEIGNANT"
+                subtitle="Créer un nouvel enseignant"
+            />
 
             <Formik
-                onSubmit={handleFormSubmit}
                 initialValues={initialValues}
                 validationSchema={checkoutSchema}
+                onSubmit={handleFormSubmit}
             >
                 {({
                       values,
@@ -34,91 +78,175 @@ const CreateEnseignantForm = () => {
                             gap="30px"
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
-                                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                                "& > div": {
+                                    gridColumn: isNonMobile
+                                        ? undefined
+                                        : "span 4",
+                                },
                             }}
                         >
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="First Name"
-                                onBlur={handleBlur}
+                                type="number"
+                                label="N° Enseignant"
+                                name="id"
+                                value={values.id}
                                 onChange={handleChange}
-                                value={values.firstName}
-                                name="firstName"
-                                error={!!touched.firstName && !!errors.firstName}
-                                helperText={touched.firstName && errors.firstName}
+                                onBlur={handleBlur}
+                                error={touched.id && !!errors.id}
+                                helperText={touched.id && errors.id}
                                 sx={{ gridColumn: "span 2" }}
                             />
+
+                            {/* -------- TYPE -------- */}
+                            <TextField
+                                select
+                                fullWidth
+                                variant="filled"
+                                label="Type"
+                                name="type"
+                                value={values.type}
+                                onChange={handleChange}
+                                error={touched.type && !!errors.type}
+                                helperText={touched.type && errors.type}
+                                sx={{ gridColumn: "span 2" }}
+                            >
+                                <MenuItem value="ENC">
+                                    Enseignant titulaire
+                                </MenuItem>
+                                <MenuItem value="INT">
+                                    Intervenant extérieur
+                                </MenuItem>
+                            </TextField>
+
+                            {/* -------- SEXE -------- */}
+                            <TextField
+                                select
+                                fullWidth
+                                variant="filled"
+                                label="Sexe"
+                                name="sexe"
+                                value={values.sexe}
+                                onChange={handleChange}
+                                error={touched.sexe && !!errors.sexe}
+                                helperText={touched.sexe && errors.sexe}
+                                sx={{ gridColumn: "span 2" }}
+                            >
+                                <MenuItem value="H">Homme</MenuItem>
+                                <MenuItem value="F">Femme</MenuItem>
+                                <MenuItem value="G">Gay</MenuItem>
+                                <MenuItem value="L">Lesbian</MenuItem>
+                            </TextField>
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Last Name"
-                                onBlur={handleBlur}
+                                label="Nom"
+                                name="nom"
+                                value={values.nom}
                                 onChange={handleChange}
-                                value={values.lastName}
-                                name="lastName"
-                                error={!!touched.lastName && !!errors.lastName}
-                                helperText={touched.lastName && errors.lastName}
+                                error={touched.nom && !!errors.nom}
+                                helperText={touched.nom && errors.nom}
                                 sx={{ gridColumn: "span 2" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Email"
-                                onBlur={handleBlur}
+                                label="Prénom"
+                                name="prenom"
+                                value={values.prenom}
                                 onChange={handleChange}
-                                value={values.email}
-                                name="email"
-                                error={!!touched.email && !!errors.email}
-                                helperText={touched.email && errors.email}
+                                error={touched.prenom && !!errors.prenom}
+                                helperText={touched.prenom && errors.prenom}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Adresse"
+                                name="adresse"
+                                value={values.adresse}
+                                onChange={handleChange}
+                                error={touched.adresse && !!errors.adresse}
+                                helperText={touched.adresse && errors.adresse}
                                 sx={{ gridColumn: "span 4" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Contact Number"
-                                onBlur={handleBlur}
+                                label="Code Postal"
+                                name="cp"
+                                value={values.cp}
                                 onChange={handleChange}
-                                value={values.contact}
-                                name="contact"
-                                error={!!touched.contact && !!errors.contact}
-                                helperText={touched.contact && errors.contact}
-                                sx={{ gridColumn: "span 4" }}
+                                error={touched.cp && !!errors.cp}
+                                helperText={touched.cp && errors.cp}
+                                sx={{ gridColumn: "span 2" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Address 1"
-                                onBlur={handleBlur}
+                                label="Ville"
+                                name="ville"
+                                value={values.ville}
                                 onChange={handleChange}
-                                value={values.address1}
-                                name="address1"
-                                error={!!touched.address1 && !!errors.address1}
-                                helperText={touched.address1 && errors.address1}
-                                sx={{ gridColumn: "span 4" }}
+                                error={touched.ville && !!errors.ville}
+                                helperText={touched.ville && errors.ville}
+                                sx={{ gridColumn: "span 2" }}
                             />
+
                             <TextField
                                 fullWidth
                                 variant="filled"
-                                type="text"
-                                label="Address 2"
-                                onBlur={handleBlur}
+                                label="Pays"
+                                name="pays"
+                                value={values.pays}
                                 onChange={handleChange}
-                                value={values.address2}
-                                name="address2"
-                                error={!!touched.address2 && !!errors.address2}
-                                helperText={touched.address2 && errors.address2}
+                                error={touched.pays && !!errors.pays}
+                                helperText={touched.pays && errors.pays}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Téléphone"
+                                name="telPort"
+                                value={values.telPort}
+                                onChange={handleChange}
+                                sx={{ gridColumn: "span 2" }}
+                            />
+
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                label="Email personnel"
+                                name="encPersoEmail"
+                                value={values.encPersoEmail}
+                                onChange={handleChange}
+                                error={
+                                    touched.encPersoEmail &&
+                                    !!errors.encPersoEmail
+                                }
+                                helperText={
+                                    touched.encPersoEmail &&
+                                    errors.encPersoEmail
+                                }
                                 sx={{ gridColumn: "span 4" }}
                             />
                         </Box>
+
                         <Box display="flex" justifyContent="end" mt="20px">
-                            <Button type="submit" color="secondary" variant="contained">
-                                Create New User
+                            <Button
+                                type="submit"
+                                color="success"
+                                variant="contained"
+                            >
+                                Create Enseignant
                             </Button>
                         </Box>
                     </form>
@@ -126,29 +254,6 @@ const CreateEnseignantForm = () => {
             </Formik>
         </Box>
     );
-};
-
-const phoneRegExp =
-    /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-
-const checkoutSchema = yup.object().shape({
-    firstName: yup.string().required("required"),
-    lastName: yup.string().required("required"),
-    email: yup.string().email("invalid email").required("required"),
-    contact: yup
-        .string()
-        .matches(phoneRegExp, "Phone number is not valid")
-        .required("required"),
-    address1: yup.string().required("required"),
-    address2: yup.string().required("required"),
-});
-const initialValues = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    contact: "",
-    address1: "",
-    address2: "",
 };
 
 export default CreateEnseignantForm;

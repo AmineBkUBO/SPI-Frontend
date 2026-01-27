@@ -1,7 +1,7 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import api from "../Config/api";
 
-const useEnseignantStore = create((set, get) => ({
+const useEnseignantStore = create((set) => ({
     enseignants: [],
     selectedEnseignant: null,
     loading: false,
@@ -10,9 +10,8 @@ const useEnseignantStore = create((set, get) => ({
     fetchEnseignants: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await api.get('/enseignants');
-            console.log(response.data);
-            set({ enseignants: response.data, loading: false });
+            const res = await api.get("/enseignants");
+            set({ enseignants: res.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
         }
@@ -21,19 +20,26 @@ const useEnseignantStore = create((set, get) => ({
     fetchEnseignantById: async (id) => {
         set({ loading: true, error: null });
         try {
-            console.log(id);
-            console.info(get().selectedEnseignant);
-            const response = await api.get(`/enseignants/${id}`);
-            console.log(response);
-            set({ selectedEnseignant: response.data, loading: false });
+            const res = await api.get(`/enseignants/${id}`);
+            set({ selectedEnseignant: res.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
         }
     },
 
-    selectEnseignant: (enseignant) => set({ selectedEnseignant: enseignant }),
+    createEnseignant: async (enseignant) => {
+        set({ loading: true, error: null });
+        try {
+            await api.post("/enseignants", enseignant);
+            set({ loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+            throw err;
+        }
+    },
 
-    clearSelectedEnseignant: () => set({ selectedEnseignant: null }),
+    clearSelectedEnseignant: () =>
+        set({ selectedEnseignant: null }),
 }));
 
 export default useEnseignantStore;
