@@ -4,50 +4,16 @@ import {
     TextField,
     MenuItem,
     Typography,
+    CircularProgress,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import api from "../../Config/api";
 import useEtudiantStore from "../../Store/etudiantStore";
-import {useParams} from "react-router-dom";
-
-/* ---------------- INITIAL VALUES ---------------- */
-const initialValues = {
-    noEtudiantNat: "",
-    anneePro: "",
-    codeCom: "",
-    noEtudiantUbo: "",
-    sexe: "H", // default to Homme
-    nom: "",
-    prenom: "",
-    dateNaissance: "",
-    lieuNaissance: "",
-    situation: "CEL", // default to Célibataire
-    nationalite: "Française",
-    telPort: "",
-    telFixe: "",
-    email: "",
-    actuAdresse: "",
-    actuCp: "",
-    actuVille: "",
-    actuPays: "",
-    permAdresse: "",
-    permCp: "",
-    permVille: "",
-    permPays: "",
-    dernierDiplome: "",
-    universite: "",
-    sigleEtu: "",
-    compteCri: "",
-    uboEmail: "",
-    grpeAnglais: "",
-    abandonMotif: "",
-    abandonDate: "",
-    estDiplome: "N",
-};
+import api from "../../Config/api";
+import { useParams } from "react-router-dom";
 
 /* ---------------- VALIDATION ---------------- */
 const phoneRegExp =
@@ -71,19 +37,24 @@ const checkoutSchema = yup.object().shape({
     sigleEtu: yup.string().required("Required"),
     compteCri: yup.string().required("Required"),
     email: yup.string().email("Invalid email"),
-    telPort: yup
-        .string()
-        .matches(phoneRegExp, "Phone number is not valid"),
+    telPort: yup.string().matches(phoneRegExp, "Phone number is not valid"),
 });
 
 /* ---------------- COMPONENT ---------------- */
-const CreateEtudiantForm = () => {
+const EditEtudiantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const [promotions, setPromotions] = useState([]);
-    const {slug} = useParams();
+    const { slug } = useParams(); // noEtudiantNat
 
-
+    const fetchEtudiantById = useEtudiantStore(
+        (state) => state.fetchEtudiantById
+    );
     const createEtudiant = useEtudiantStore((state) => state.createEtudiant);
+    const selectedEtudiant = useEtudiantStore(
+        (state) => state.selectedEtudiant
+    );
+
+    const [initialValues, setInitialValues] = useState(null);
+    const [promotions, setPromotions] = useState([]);
 
     /* ---------------- FETCH PROMOTIONS ---------------- */
     useEffect(() => {
@@ -98,16 +69,75 @@ const CreateEtudiantForm = () => {
         fetchPromotions();
     }, []);
 
+    /* ---------------- FETCH STUDENT DATA ---------------- */
+    useEffect(() => {
+        const loadEtudiant = async () => {
+            await fetchEtudiantById(slug);
+        };
+        loadEtudiant();
+    }, [slug, fetchEtudiantById]);
+
+    /* ---------------- SET INITIAL VALUES AFTER FETCH ---------------- */
+    useEffect(() => {
+        if (selectedEtudiant) {
+            setInitialValues({
+                noEtudiantNat: selectedEtudiant.noEtudiantNat || "",
+                anneePro: selectedEtudiant.anneePro?.anneePro || "",
+                codeCom: selectedEtudiant.codeCom || "",
+                noEtudiantUbo: selectedEtudiant.noEtudiantUbo || "",
+                sexe: selectedEtudiant.sexe || "H",
+                nom: selectedEtudiant.nom || "",
+                prenom: selectedEtudiant.prenom || "",
+                dateNaissance: selectedEtudiant.dateNaissance || "",
+                lieuNaissance: selectedEtudiant.lieuNaissance || "",
+                situation: selectedEtudiant.situation || "CEL",
+                nationalite: selectedEtudiant.nationalite || "Française",
+                telPort: selectedEtudiant.telPort || "",
+                telFixe: selectedEtudiant.telFixe || "",
+                email: selectedEtudiant.email || "",
+                actuAdresse: selectedEtudiant.actuAdresse || "",
+                actuCp: selectedEtudiant.actuCp || "",
+                actuVille: selectedEtudiant.actuVille || "",
+                actuPays: selectedEtudiant.actuPays || "",
+                permAdresse: selectedEtudiant.permAdresse || "",
+                permCp: selectedEtudiant.permCp || "",
+                permVille: selectedEtudiant.permVille || "",
+                permPays: selectedEtudiant.permPays || "",
+                dernierDiplome: selectedEtudiant.dernierDiplome || "",
+                universite: selectedEtudiant.universite || "",
+                sigleEtu: selectedEtudiant.sigleEtu || "",
+                compteCri: selectedEtudiant.compteCri || "",
+                uboEmail: selectedEtudiant.uboEmail || "",
+                grpeAnglais: selectedEtudiant.grpeAnglais || "",
+                abandonMotif: selectedEtudiant.abandonMotif || "",
+                abandonDate: selectedEtudiant.abandonDate || "",
+                estDiplome: selectedEtudiant.estDiplome || "N",
+            });
+        }
+    }, [selectedEtudiant]);
+
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {
-        // Transform promotion to object as backend expects
         const payload = {
             ...values,
             anneePro: { anneePro: values.anneePro },
         };
-        console.log("[CreateEtudiant] payload =", payload);
-        await createEtudiant(payload);
+        console.log("[EditEtudiant] payload =", payload);
+        await createEtudiant(payload); // replace with update method if exists
     };
+
+    if (!initialValues) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="50vh"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box m="20px">
@@ -118,6 +148,7 @@ const CreateEtudiantForm = () => {
 
             <Formik
                 initialValues={initialValues}
+                enableReinitialize
                 validationSchema={checkoutSchema}
                 onSubmit={handleFormSubmit}
             >
@@ -143,6 +174,7 @@ const CreateEtudiantForm = () => {
                                 },
                             }}
                         >
+                            {/* Numéro Étudiant National */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -212,6 +244,7 @@ const CreateEtudiantForm = () => {
                                 <MenuItem value="ENC">En couple</MenuItem>
                             </TextField>
 
+                            {/* Nom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -224,6 +257,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Prénom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -236,6 +270,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Date Naissance */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -250,6 +285,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Lieu Naissance */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -262,6 +298,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Téléphone */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -274,6 +311,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Email */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -286,6 +324,7 @@ const CreateEtudiantForm = () => {
                                 sx={{ gridColumn: "span 4" }}
                             />
 
+                            {/* Perm Address */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -329,54 +368,6 @@ const CreateEtudiantForm = () => {
                                 error={touched.permPays && !!errors.permPays}
                                 helperText={touched.permPays && errors.permPays}
                                 sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Dernier Diplôme"
-                                name="dernierDiplome"
-                                value={values.dernierDiplome}
-                                onChange={handleChange}
-                                error={touched.dernierDiplome && !!errors.dernierDiplome}
-                                helperText={touched.dernierDiplome && errors.dernierDiplome}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Université"
-                                name="universite"
-                                value={values.universite}
-                                onChange={handleChange}
-                                error={touched.universite && !!errors.universite}
-                                helperText={touched.universite && errors.universite}
-                                sx={{ gridColumn: "span 2" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Sigle Étudiant"
-                                name="sigleEtu"
-                                value={values.sigleEtu}
-                                onChange={handleChange}
-                                error={touched.sigleEtu && !!errors.sigleEtu}
-                                helperText={touched.sigleEtu && errors.sigleEtu}
-                                sx={{ gridColumn: "span 1" }}
-                            />
-
-                            <TextField
-                                fullWidth
-                                variant="filled"
-                                label="Compte CRI"
-                                name="compteCri"
-                                value={values.compteCri}
-                                onChange={handleChange}
-                                error={touched.compteCri && !!errors.compteCri}
-                                helperText={touched.compteCri && errors.compteCri}
-                                sx={{ gridColumn: "span 1" }}
                             />
                         </Box>
 
@@ -484,7 +475,7 @@ const CreateEtudiantForm = () => {
 
                         <Box display="flex" justifyContent="end" mt="20px">
                             <Button type="submit" color="success" variant="contained">
-                                Create Étudiant
+                                Modifier Étudiant
                             </Button>
                         </Box>
                     </form>
@@ -494,4 +485,4 @@ const CreateEtudiantForm = () => {
     );
 };
 
-export default CreateEtudiantForm;
+export default EditEtudiantForm;
