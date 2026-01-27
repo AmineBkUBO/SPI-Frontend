@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import api from "../Config/api";
 
 const useFormationStore = create((set, get) => ({
@@ -10,8 +10,7 @@ const useFormationStore = create((set, get) => ({
     fetchFormations: async () => {
         set({ loading: true, error: null });
         try {
-            const response = await api.get('/formations');
-            console.log(response.data);
+            const response = await api.get("/formations");
             set({ formations: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
@@ -21,18 +20,30 @@ const useFormationStore = create((set, get) => ({
     fetchFormationById: async (id) => {
         set({ loading: true, error: null });
         try {
-            console.log(id);
-            console.info(get().selectedFormation);
             const response = await api.get(`/formations/${id}`);
-            console.log(response.data);
             set({ selectedFormation: response.data, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
         }
     },
 
-    selectFormation: (formation) => set({ selectedFormation: formation }),
+    createFormation: async (formation) => {
+        set({ loading: true, error: null });
+        try {
+            const response = await api.post("/formations", formation);
+            set({
+                formations: [...get().formations, response.data],
+                loading: false,
+            });
+            console.log(response)
+            console.log("Sending ..." + formation)
+        } catch (err) {
+            set({ error: err.message, loading: false });
+            throw err;
+        }
+    },
 
+    selectFormation: (formation) => set({ selectedFormation: formation }),
     clearSelectedFormation: () => set({ selectedFormation: null }),
 }));
 
