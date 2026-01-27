@@ -4,40 +4,15 @@ import {
     TextField,
     MenuItem,
     Typography,
+    CircularProgress,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
 import useEnseignantStore from "../../Store/enseignantStore";
-import {useParams} from "react-router-dom";
-
-/* ---------------- INITIAL VALUES ---------------- */
-const initialValues = {
-    id: "",
-    type: "",
-    sexe: "",
-    nom: "",
-    prenom: "",
-    adresse: "",
-    cp: "",
-    ville: "",
-    pays: "",
-    telPort: "",
-    encPersoTel: "",
-    encUboTel: "",
-    encPersoEmail: "",
-    encUboEmail: "",
-    intNoInsee: "",
-    intSocNom: "",
-    intSocAdresse: "",
-    intSocCp: "",
-    intSocVille: "",
-    intSocPays: "",
-    intFonction: "",
-    intProfEmail: "",
-    intProfTel: "",
-};
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 /* ---------------- VALIDATION ---------------- */
 const checkoutSchema = yup.object().shape({
@@ -57,20 +32,80 @@ const checkoutSchema = yup.object().shape({
 });
 
 /* ---------------- COMPONENT ---------------- */
-const CreateEnseignantForm = () => {
+const EditEnseignantForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const { slug } = useParams(); // ID of the enseignant
+
+    const fetchEnseignantById = useEnseignantStore(
+        (state) => state.fetchEnseignantById
+    );
     const createEnseignant = useEnseignantStore(
         (state) => state.createEnseignant
     );
+    const selectedEnseignant = useEnseignantStore(
+        (state) => state.selectedEnseignant
+    );
 
-    const {slug} = useParams();
+    const [initialValues, setInitialValues] = useState(null);
 
+    /* ---------------- FETCH DATA ---------------- */
+    useEffect(() => {
+        const loadEnseignant = async () => {
+            await fetchEnseignantById(slug);
+        };
+        loadEnseignant();
+    }, [slug, fetchEnseignantById]);
+
+    /* ---------------- UPDATE INITIAL VALUES WHEN FETCHED ---------------- */
+    useEffect(() => {
+        if (selectedEnseignant) {
+            setInitialValues({
+                id: selectedEnseignant.id || "",
+                type: selectedEnseignant.type || "",
+                sexe: selectedEnseignant.sexe || "",
+                nom: selectedEnseignant.nom || "",
+                prenom: selectedEnseignant.prenom || "",
+                adresse: selectedEnseignant.adresse || "",
+                cp: selectedEnseignant.cp || "",
+                ville: selectedEnseignant.ville || "",
+                pays: selectedEnseignant.pays || "",
+                telPort: selectedEnseignant.telPort || "",
+                encPersoTel: selectedEnseignant.encPersoTel || "",
+                encUboTel: selectedEnseignant.encUboTel || "",
+                encPersoEmail: selectedEnseignant.encPersoEmail || "",
+                encUboEmail: selectedEnseignant.encUboEmail || "",
+                intNoInsee: selectedEnseignant.intNoInsee || "",
+                intSocNom: selectedEnseignant.intSocNom || "",
+                intSocAdresse: selectedEnseignant.intSocAdresse || "",
+                intSocCp: selectedEnseignant.intSocCp || "",
+                intSocVille: selectedEnseignant.intSocVille || "",
+                intSocPays: selectedEnseignant.intSocPays || "",
+                intFonction: selectedEnseignant.intFonction || "",
+                intProfEmail: selectedEnseignant.intProfEmail || "",
+                intProfTel: selectedEnseignant.intProfTel || "",
+            });
+        }
+    }, [selectedEnseignant]);
 
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {
-        console.log("[CreateEnseignant] payload =", values);
+        console.log("[EditEnseignant] payload =", values);
         await createEnseignant(values);
     };
+
+    if (!initialValues) {
+        // Show loading while fetching
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="50vh"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box m="20px">
@@ -81,6 +116,7 @@ const CreateEnseignantForm = () => {
 
             <Formik
                 initialValues={initialValues}
+                enableReinitialize
                 validationSchema={checkoutSchema}
                 onSubmit={handleFormSubmit}
             >
@@ -93,6 +129,7 @@ const CreateEnseignantForm = () => {
                       handleSubmit,
                   }) => (
                     <form onSubmit={handleSubmit}>
+                        {/* ---------------- FORM FIELDS ---------------- */}
                         <Box
                             display="grid"
                             gap="30px"
@@ -105,7 +142,7 @@ const CreateEnseignantForm = () => {
                                 },
                             }}
                         >
-                            {/* ---------------- BASIC FIELDS ---------------- */}
+                            {/* ID */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -160,6 +197,7 @@ const CreateEnseignantForm = () => {
                                 <MenuItem value="L">Lesbian</MenuItem>
                             </TextField>
 
+                            {/* Nom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -172,6 +210,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Prénom */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -184,6 +223,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Adresse */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -196,6 +236,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 4" }}
                             />
 
+                            {/* CP */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -208,6 +249,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Ville */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -220,6 +262,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Pays */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -232,6 +275,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Tel */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -242,6 +286,7 @@ const CreateEnseignantForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             />
 
+                            {/* Email Personnel */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -406,7 +451,7 @@ const CreateEnseignantForm = () => {
                                 color="success"
                                 variant="contained"
                             >
-                                Create Enseignant
+                                Modifier Enseignant
                             </Button>
                         </Box>
                     </form>
@@ -416,4 +461,4 @@ const CreateEnseignantForm = () => {
     );
 };
 
-export default CreateEnseignantForm;
+export default EditEnseignantForm;
