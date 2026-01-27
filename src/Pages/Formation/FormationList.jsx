@@ -47,8 +47,9 @@ export default function FormationList({
     };
 
     const handleEdit = (codeFormation) => {
+        navigate(`/formation/edit/${codeFormation}`);
         console.log("Edit formation:", codeFormation);
-    };
+    }
 
     const handleAddFormation = () => {
         navigate("/formation/add");

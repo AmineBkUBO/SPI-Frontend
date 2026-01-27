@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import {useEffect} from "react";
 import {
     Box,
     Typography,
@@ -9,8 +9,8 @@ import {
     Chip,
     Tooltip,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
-import { tokens } from "../../theme";
+import {DataGrid} from "@mui/x-data-grid";
+import {tokens} from "../../theme";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import AddIcon from "@mui/icons-material/Add";
@@ -18,7 +18,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import Header from "../../components/Header";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import useEtudiantStore from "../../Store/etudiantStore";
 
 export default function EtudiantList({
@@ -29,7 +29,7 @@ export default function EtudiantList({
     const colors = tokens(theme.palette.mode);
     const navigate = useNavigate();
 
-    const { etudiants, loading, error, fetchEtudiants, selectStudent } =
+    const {etudiants, loading, error, fetchEtudiants, selectStudent} =
         useEtudiantStore();
 
     useEffect(() => {
@@ -41,8 +41,9 @@ export default function EtudiantList({
     };
 
     const handleEdit = (noEtudiantNat) => {
-        console.log("Edit student:", noEtudiantNat);
-    };
+        navigate(`/etudiant/edit/${noEtudiantNat}`);
+        console.log("Edit etudiant:", noEtudiantNat);
+    }
 
     const handleAdd = () => {
         navigate("/etudiant/add");
@@ -53,9 +54,9 @@ export default function EtudiantList({
             field: "noEtudiantNat",
             headerName: "N° National",
             width: 150,
-            renderCell: ({ value }) => (
+            renderCell: ({value}) => (
                 <Box display="flex" alignItems="center" gap="8px">
-                    <SchoolIcon sx={{ fontSize: 18, color: colors.grey[300] }} />
+                    <SchoolIcon sx={{fontSize: 18, color: colors.grey[300]}}/>
                     <Typography variant="body2" fontWeight="500">
                         {value}
                     </Typography>
@@ -67,12 +68,12 @@ export default function EtudiantList({
             headerName: "Nom & Prénom",
             flex: 1,
             minWidth: 200,
-            renderCell: ({ row }) => (
+            renderCell: ({row}) => (
                 <Box>
                     <Typography
                         variant="body2"
                         fontWeight="600"
-                        sx={{ color: colors.greenAccent[400] }}
+                        sx={{color: colors.greenAccent[400]}}
                     >
                         {row.nom} {row.prenom}
                     </Typography>
@@ -83,7 +84,7 @@ export default function EtudiantList({
             field: "formation",
             headerName: "Formation",
             width: 150,
-            renderCell: ({ row }) => (
+            renderCell: ({row}) => (
                 <Chip
                     label={row.anneePro ? row.anneePro.siglePro : "—"}
                     size="small"
@@ -108,10 +109,10 @@ export default function EtudiantList({
             headerName: "Email",
             flex: 1,
             minWidth: 200,
-            renderCell: ({ value }) => (
+            renderCell: ({value}) => (
                 <Box display="flex" alignItems="center" gap="6px">
-                    <EmailIcon sx={{ fontSize: 16, color: colors.grey[400] }} />
-                    <Typography variant="body2" sx={{ color: colors.grey[100] }}>
+                    <EmailIcon sx={{fontSize: 16, color: colors.grey[400]}}/>
+                    <Typography variant="body2" sx={{color: colors.grey[100]}}>
                         {value || "—"}
                     </Typography>
                 </Box>
@@ -121,9 +122,9 @@ export default function EtudiantList({
             field: "telPort",
             headerName: "Téléphone",
             width: 150,
-            renderCell: ({ value }) => (
+            renderCell: ({value}) => (
                 <Box display="flex" alignItems="center" gap="6px">
-                    <PhoneIcon sx={{ fontSize: 16, color: colors.grey[400] }} />
+                    <PhoneIcon sx={{fontSize: 16, color: colors.grey[400]}}/>
                     <Typography variant="body2">{value || "—"}</Typography>
                 </Box>
             ),
@@ -132,7 +133,7 @@ export default function EtudiantList({
             field: "estDiplome",
             headerName: "Diplômé",
             width: 100,
-            renderCell: ({ value }) => (
+            renderCell: ({value}) => (
                 <Chip
                     label={value === "O" ? "Oui" : "Non"}
                     size="small"
@@ -152,7 +153,7 @@ export default function EtudiantList({
             headerName: "Actions",
             width: 120,
             sortable: false,
-            renderCell: ({ row }) => (
+            renderCell: ({row}) => (
                 <Box display="flex" gap="4px">
                     <Tooltip title="View Details" arrow>
                         <IconButton
@@ -169,7 +170,7 @@ export default function EtudiantList({
                                 },
                             }}
                         >
-                            <VisibilityOutlinedIcon />
+                            <VisibilityOutlinedIcon/>
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Edit Student" arrow>
@@ -184,7 +185,7 @@ export default function EtudiantList({
                                 },
                             }}
                         >
-                            <EditOutlinedIcon />
+                            <EditOutlinedIcon/>
                         </IconButton>
                     </Tooltip>
                 </Box>
@@ -201,10 +202,10 @@ export default function EtudiantList({
                 alignItems="center"
                 mb="20px"
             >
-                <Header title={title} subtitle={subtitle} />
+                <Header title={title} subtitle={subtitle}/>
                 <Button
                     variant="contained"
-                    startIcon={<AddIcon />}
+                    startIcon={<AddIcon/>}
                     onClick={handleAdd}
                     sx={{
                         backgroundColor: colors.greenAccent[600],
@@ -285,7 +286,7 @@ export default function EtudiantList({
                     height="60vh"
                     gap="20px"
                 >
-                    <CircularProgress size={60} thickness={4} />
+                    <CircularProgress size={60} thickness={4}/>
                     <Typography variant="h6" color={colors.grey[300]}>
                         Loading students...
                     </Typography>

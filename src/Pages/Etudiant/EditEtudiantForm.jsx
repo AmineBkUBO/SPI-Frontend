@@ -108,8 +108,8 @@ const CreateEtudiantForm = () => {
     return (
         <Box m="20px">
             <Header
-                title="CREATE ETUDIANT"
-                subtitle="Créer un nouveau étudiant"
+                title="Modifier ETUDIANT"
+                subtitle="Modifier un étudiant existant"
             />
 
             <Formik

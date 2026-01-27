@@ -44,7 +44,10 @@ export default function EnseignantList({
     }, [fetchEnseignants]);
 
     const handleView = (id) => navigate(`/enseignant/${id}`);
-    const handleEdit = (id) => console.log("Edit enseignant:", id);
+    const handleEdit = (id) => {
+        navigate(`/enseignant/edit/${id}`);
+        console.log("Edit enseignant:", id);
+    }
     const handleAdd = () => navigate("/enseignant/add");
 
     const columns = [

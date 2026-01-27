@@ -95,8 +95,8 @@ const CreatePromotionForm = () => {
     return (
         <Box m="20px">
             <Header
-                title="CREATE PROMOTION"
-                subtitle="Créer une nouvelle promotion"
+                title="Modifier PROMOTION"
+                subtitle="Modifier une promotion existante"
             />
 
             <Formik

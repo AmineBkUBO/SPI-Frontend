@@ -71,8 +71,8 @@ const CreateEnseignantForm = () => {
     return (
         <Box m="20px">
             <Header
-                title="CREATE ENSEIGNANT"
-                subtitle="Créer un nouvel enseignant"
+                title="Modifier ENSEIGNANT"
+                subtitle="Modifier un enseignant existant"
             />
 
             <Formik

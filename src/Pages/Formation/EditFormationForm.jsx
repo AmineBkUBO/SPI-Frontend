@@ -83,8 +83,8 @@ const CreateFormationForm = () => {
     return (
         <Box m="20px">
             <Header
-                title="CREATE FORMATION"
-                subtitle="Créer une nouvelle formation"
+                title="Modifier FORMATION"
+                subtitle="Modifier une formation existante"
             />
 
             <Formik
