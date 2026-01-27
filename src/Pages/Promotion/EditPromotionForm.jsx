@@ -3,6 +3,9 @@ import {
     Button,
     TextField,
     MenuItem,
+    CircularProgress,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -11,24 +14,9 @@ import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import api from "../../Config/api";
 import usePromotionStore from "../../Store/promotionStore";
-import {useParams} from "react-router-dom";
-
-/* ================= INITIAL VALUES ================= */
-
-const initialValues = {
-    anneePro: "",
-    codeFormation: "",
-    noEnseignant: "", // stores Enseignant.id (Integer)
-    siglePro: "",
-    nbEtuSouhaite: "",
-    etatPreselection: "",
-    dateRentree: "",
-    lieuRentree: "",
-    commentaire: "",
-};
+import { useParams } from "react-router-dom";
 
 /* ================= VALIDATION ================= */
-
 const checkoutSchema = yup.object().shape({
     anneePro: yup.string().max(10).required("Required"),
     codeFormation: yup.string().required("Formation is required"),
@@ -48,52 +36,99 @@ const checkoutSchema = yup.object().shape({
 });
 
 /* ================= COMPONENT ================= */
-
-const CreatePromotionForm = () => {
+const EditPromotionForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const createPromotion = usePromotionStore((state) => state.createPromotion);
-    const {slug} = useParams();
+    const { slug } = useParams();
 
+    const fetchPromotionById = usePromotionStore(
+        (state) => state.fetchPromotionById
+    );
+    const createPromotion = usePromotionStore(
+        (state) => state.createPromotion
+    );
+    const selectedPromotion = usePromotionStore(
+        (state) => state.selectedPromotion
+    );
 
+    const [initialValues, setInitialValues] = useState(null);
     const [formations, setFormations] = useState([]);
     const [enseignants, setEnseignants] = useState([]);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
-    /* ---------------- FETCH DROPDOWNS ---------------- */
+    /* ---------------- FETCH FORMATION & ENSEIGNANT ---------------- */
     useEffect(() => {
         const fetchDropdownData = async () => {
             try {
-                console.log("[CreatePromotion] Fetching formations...");
                 const fRes = await api.get("/formations");
-                console.log("[CreatePromotion] formations =", fRes.data);
                 setFormations(fRes.data);
 
-                console.log("[CreatePromotion] Fetching enseignants...");
                 const eRes = await api.get("/enseignants");
-                console.log("[CreatePromotion] enseignants =", eRes.data);
                 setEnseignants(eRes.data);
             } catch (err) {
-                console.error("[CreatePromotion] Dropdown fetch error", err);
+                console.error("[EditPromotion] Dropdown fetch error", err);
             }
         };
-
         fetchDropdownData();
     }, []);
+
+    /* ---------------- FETCH SELECTED PROMOTION ---------------- */
+    useEffect(() => {
+        const loadPromotion = async () => {
+            await fetchPromotionById(slug);
+        };
+        loadPromotion();
+    }, [slug, fetchPromotionById]);
+
+    /* ---------------- SET INITIAL VALUES ---------------- */
+    useEffect(() => {
+        if (selectedPromotion) {
+            setInitialValues({
+                anneePro: selectedPromotion.anneePro || "",
+                codeFormation: selectedPromotion.codeFormation?.codeFormation || "",
+                noEnseignant: selectedPromotion.noEnseignant?.id || "",
+                siglePro: selectedPromotion.siglePro || "",
+                nbEtuSouhaite: selectedPromotion.nbEtuSouhaite || "",
+                etatPreselection: selectedPromotion.etatPreselection || "",
+                dateRentree: selectedPromotion.dateRentree || "",
+                lieuRentree: selectedPromotion.lieuRentree || "",
+                commentaire: selectedPromotion.commentaire || "",
+            });
+        }
+    }, [selectedPromotion]);
 
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {
         const payload = {
             ...values,
-            codeFormation: {
-                codeFormation: values.codeFormation,
-            },
-            noEnseignant: {
-                id: values.noEnseignant,
-            },
+            codeFormation: { codeFormation: values.codeFormation },
+            noEnseignant: { id: values.noEnseignant },
         };
 
-        console.log("[CreatePromotion] submit payload =", payload);
-        await createPromotion(payload);
+        try {
+            await createPromotion(payload); // replace with updatePromotion if available
+            setSuccessOpen(true);
+        } catch (err) {
+            setErrorMessage(
+                err?.response?.data?.message || "Erreur lors de la modification."
+            );
+            setErrorOpen(true);
+        }
     };
+
+    if (!initialValues) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="50vh"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box m="20px">
@@ -105,6 +140,7 @@ const CreatePromotionForm = () => {
             <Formik
                 onSubmit={handleFormSubmit}
                 initialValues={initialValues}
+                enableReinitialize
                 validationSchema={checkoutSchema}
             >
                 {({
@@ -122,9 +158,7 @@ const CreatePromotionForm = () => {
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
                                 "& > div": {
-                                    gridColumn: isNonMobile
-                                        ? undefined
-                                        : "span 4",
+                                    gridColumn: isNonMobile ? undefined : "span 4",
                                 },
                             }}
                         >
@@ -156,10 +190,7 @@ const CreatePromotionForm = () => {
                                 sx={{ gridColumn: "span 2" }}
                             >
                                 {formations.map((f) => (
-                                    <MenuItem
-                                        key={f.codeFormation}
-                                        value={f.codeFormation}
-                                    >
+                                    <MenuItem key={f.codeFormation} value={f.codeFormation}>
                                         {f.codeFormation} - {f.nomFormation}
                                     </MenuItem>
                                 ))}
@@ -173,17 +204,11 @@ const CreatePromotionForm = () => {
                                 name="noEnseignant"
                                 value={values.noEnseignant}
                                 onChange={handleChange}
-                                error={
-                                    touched.noEnseignant &&
-                                    !!errors.noEnseignant
-                                }
+                                error={touched.noEnseignant && !!errors.noEnseignant}
                                 sx={{ gridColumn: "span 2" }}
                             >
                                 {enseignants.map((e) => (
-                                    <MenuItem
-                                        key={e.id}
-                                        value={e.id}
-                                    >
+                                    <MenuItem key={e.id} value={e.id}>
                                         {e.nom} {e.prenom}
                                     </MenuItem>
                                 ))}
@@ -208,14 +233,10 @@ const CreatePromotionForm = () => {
                                 name="nbEtuSouhaite"
                                 value={values.nbEtuSouhaite}
                                 onChange={handleChange}
-                                error={
-                                    touched.nbEtuSouhaite &&
-                                    !!errors.nbEtuSouhaite
-                                }
+                                error={touched.nbEtuSouhaite && !!errors.nbEtuSouhaite}
                                 sx={{ gridColumn: "span 2" }}
                             />
 
-                            {/* ✅ ETAT PRESELECTION DROPDOWN */}
                             <TextField
                                 select
                                 fullWidth
@@ -224,22 +245,12 @@ const CreatePromotionForm = () => {
                                 name="etatPreselection"
                                 value={values.etatPreselection}
                                 onChange={handleChange}
-                                error={
-                                    touched.etatPreselection &&
-                                    !!errors.etatPreselection
-                                }
-                                helperText={
-                                    touched.etatPreselection &&
-                                    errors.etatPreselection
-                                }
+                                error={touched.etatPreselection && !!errors.etatPreselection}
+                                helperText={touched.etatPreselection && errors.etatPreselection}
                                 sx={{ gridColumn: "span 2" }}
                             >
-                                <MenuItem value="ENC">
-                                    ENC — En cours
-                                </MenuItem>
-                                <MenuItem value="TER">
-                                    TER — Terminé
-                                </MenuItem>
+                                <MenuItem value="ENC">ENC — En cours</MenuItem>
+                                <MenuItem value="TER">TER — Terminé</MenuItem>
                             </TextField>
 
                             <TextField
@@ -283,14 +294,48 @@ const CreatePromotionForm = () => {
                                 color="success"
                                 variant="contained"
                             >
-                                Create Promotion
+                                Modifier Promotion
                             </Button>
                         </Box>
                     </form>
                 )}
             </Formik>
+
+            {/* ================= SUCCESS ================= */}
+            <Snackbar
+                open={successOpen}
+                autoHideDuration={3500}
+                onClose={() => setSuccessOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setSuccessOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ✅ Promotion modifiée avec succès !
+                </Alert>
+            </Snackbar>
+
+            {/* ================= ERROR ================= */}
+            <Snackbar
+                open={errorOpen}
+                autoHideDuration={4500}
+                onClose={() => setErrorOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setErrorOpen(false)}
+                    severity="error"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ❌ {errorMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
 
-export default CreatePromotionForm;
+export default EditPromotionForm;
