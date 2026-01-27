@@ -6,18 +6,18 @@ import {
     FormControlLabel,
     Snackbar,
     Alert,
+    CircularProgress,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "../../components/Header";
 import useFormationStore from "../../Store/formationStore";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 /* ===================== VALIDATION ===================== */
-
 const checkoutSchema = yup.object().shape({
     codeFormation: yup
         .string()
@@ -37,32 +37,49 @@ const checkoutSchema = yup.object().shape({
     finHabilitation: yup.date().nullable(),
 });
 
-/* ===================== INITIAL VALUES ===================== */
-
-const initialValues = {
-    codeFormation: "",
-    diplome: "",
-    nomFormation: "",
-    n0Annee: true,
-    doubleDiplome: false,
-    debutHabilitation: "",
-    finHabilitation: "",
-};
-
 /* ===================== COMPONENT ===================== */
-
-const CreateFormationForm = () => {
+const EditFormationForm = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const createFormation = useFormationStore(
-        (state) => state.createFormation
-    );
-    const {slug} = useParams();
+    const { slug } = useParams(); // id of the formation
 
+    const fetchFormationById = useFormationStore(
+        (state) => state.fetchFormationById
+    );
+    const createFormation = useFormationStore((state) => state.createFormation);
+    const selectedFormation = useFormationStore(
+        (state) => state.selectedFormation
+    );
+
+    const [initialValues, setInitialValues] = useState(null);
     const [successOpen, setSuccessOpen] = useState(false);
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
-    const handleFormSubmit = async (values, { resetForm }) => {
+    /* ---------------- FETCH FORMATION DATA ---------------- */
+    useEffect(() => {
+        const loadFormation = async () => {
+            await fetchFormationById(slug);
+        };
+        loadFormation();
+    }, [slug, fetchFormationById]);
+
+    /* ---------------- SET INITIAL VALUES AFTER FETCH ---------------- */
+    useEffect(() => {
+        if (selectedFormation) {
+            setInitialValues({
+                codeFormation: selectedFormation.codeFormation || "",
+                diplome: selectedFormation.diplome || "",
+                nomFormation: selectedFormation.nomFormation || "",
+                n0Annee: selectedFormation.n0Annee ?? true,
+                doubleDiplome: selectedFormation.doubleDiplome ?? false,
+                debutHabilitation: selectedFormation.debutHabilitation || "",
+                finHabilitation: selectedFormation.finHabilitation || "",
+            });
+        }
+    }, [selectedFormation]);
+
+    /* ---------------- SUBMIT ---------------- */
+    const handleFormSubmit = async (values) => {
         const payload = {
             ...values,
             debutHabilitation: values.debutHabilitation || null,
@@ -70,17 +87,29 @@ const CreateFormationForm = () => {
         };
 
         try {
-            await createFormation(payload);
+            await createFormation(payload); // replace with updateFormation if exists
             setSuccessOpen(true);
-            resetForm();
         } catch (error) {
             setErrorMessage(
                 error?.response?.data?.message ||
-                "Une erreur est survenue lors de la création."
+                "Une erreur est survenue lors de la modification."
             );
             setErrorOpen(true);
         }
     };
+
+    if (!initialValues) {
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                minHeight="50vh"
+            >
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box m="20px">
@@ -92,6 +121,7 @@ const CreateFormationForm = () => {
             <Formik
                 onSubmit={handleFormSubmit}
                 initialValues={initialValues}
+                enableReinitialize
                 validationSchema={checkoutSchema}
             >
                 {({
@@ -233,7 +263,7 @@ const CreateFormationForm = () => {
                                 variant="contained"
                                 size="large"
                             >
-                                Create Formation
+                                Modifier Formation
                             </Button>
                         </Box>
                     </form>
@@ -253,7 +283,7 @@ const CreateFormationForm = () => {
                     variant="filled"
                     sx={{ fontSize: "0.95rem" }}
                 >
-                    ✅ Formation créée avec succès !
+                    ✅ Formation modifiée avec succès !
                 </Alert>
             </Snackbar>
 
@@ -277,4 +307,4 @@ const CreateFormationForm = () => {
     );
 };
 
-export default CreateFormationForm;
+export default EditFormationForm;
