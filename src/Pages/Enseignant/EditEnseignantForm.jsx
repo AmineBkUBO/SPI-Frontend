@@ -5,6 +5,8 @@ import {
     MenuItem,
     Typography,
     CircularProgress,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -47,6 +49,9 @@ const EditEnseignantForm = () => {
     );
 
     const [initialValues, setInitialValues] = useState(null);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     /* ---------------- FETCH DATA ---------------- */
     useEffect(() => {
@@ -89,8 +94,16 @@ const EditEnseignantForm = () => {
 
     /* ---------------- SUBMIT ---------------- */
     const handleFormSubmit = async (values) => {
-        console.log("[EditEnseignant] payload =", values);
-        await createEnseignant(values);
+        try {
+            console.log("[EditEnseignant] payload =", values);
+            await createEnseignant(values); // replace with updateEnseignant if available
+            setSuccessOpen(true);
+        } catch (err) {
+            setErrorMessage(
+                err?.response?.data?.message || "Une erreur est survenue."
+            );
+            setErrorOpen(true);
+        }
     };
 
     if (!initialValues) {
@@ -129,16 +142,13 @@ const EditEnseignantForm = () => {
                       handleSubmit,
                   }) => (
                     <form onSubmit={handleSubmit}>
-                        {/* ---------------- FORM FIELDS ---------------- */}
                         <Box
                             display="grid"
                             gap="30px"
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
                                 "& > div": {
-                                    gridColumn: isNonMobile
-                                        ? undefined
-                                        : "span 4",
+                                    gridColumn: isNonMobile ? undefined : "span 4",
                                 },
                             }}
                         >
@@ -457,6 +467,40 @@ const EditEnseignantForm = () => {
                     </form>
                 )}
             </Formik>
+
+            {/* ================= SUCCESS MESSAGE ================= */}
+            <Snackbar
+                open={successOpen}
+                autoHideDuration={3500}
+                onClose={() => setSuccessOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setSuccessOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ✅ Enseignant modifié avec succès !
+                </Alert>
+            </Snackbar>
+
+            {/* ================= ERROR MESSAGE ================= */}
+            <Snackbar
+                open={errorOpen}
+                autoHideDuration={4500}
+                onClose={() => setErrorOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setErrorOpen(false)}
+                    severity="error"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ❌ {errorMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

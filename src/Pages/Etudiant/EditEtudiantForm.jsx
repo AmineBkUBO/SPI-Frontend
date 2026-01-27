@@ -5,6 +5,8 @@ import {
     MenuItem,
     Typography,
     CircularProgress,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
@@ -55,6 +57,9 @@ const EditEtudiantForm = () => {
 
     const [initialValues, setInitialValues] = useState(null);
     const [promotions, setPromotions] = useState([]);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     /* ---------------- FETCH PROMOTIONS ---------------- */
     useEffect(() => {
@@ -122,8 +127,16 @@ const EditEtudiantForm = () => {
             ...values,
             anneePro: { anneePro: values.anneePro },
         };
-        console.log("[EditEtudiant] payload =", payload);
-        await createEtudiant(payload); // replace with update method if exists
+        try {
+            console.log("[EditEtudiant] payload =", payload);
+            await createEtudiant(payload); // replace with update method if exists
+            setSuccessOpen(true);
+        } catch (err) {
+            setErrorMessage(
+                err?.response?.data?.message || "Une erreur est survenue."
+            );
+            setErrorOpen(true);
+        }
     };
 
     if (!initialValues) {
@@ -168,9 +181,7 @@ const EditEtudiantForm = () => {
                             gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                             sx={{
                                 "& > div": {
-                                    gridColumn: isNonMobile
-                                        ? undefined
-                                        : "span 4",
+                                    gridColumn: isNonMobile ? undefined : "span 4",
                                 },
                             }}
                         >
@@ -324,7 +335,7 @@ const EditEtudiantForm = () => {
                                 sx={{ gridColumn: "span 4" }}
                             />
 
-                            {/* Perm Address */}
+                            {/* Permanent Address */}
                             <TextField
                                 fullWidth
                                 variant="filled"
@@ -481,6 +492,40 @@ const EditEtudiantForm = () => {
                     </form>
                 )}
             </Formik>
+
+            {/* ================= SUCCESS MESSAGE ================= */}
+            <Snackbar
+                open={successOpen}
+                autoHideDuration={3500}
+                onClose={() => setSuccessOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setSuccessOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ✅ Étudiant modifié avec succès !
+                </Alert>
+            </Snackbar>
+
+            {/* ================= ERROR MESSAGE ================= */}
+            <Snackbar
+                open={errorOpen}
+                autoHideDuration={4500}
+                onClose={() => setErrorOpen(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            >
+                <Alert
+                    onClose={() => setErrorOpen(false)}
+                    severity="error"
+                    variant="filled"
+                    sx={{ fontSize: "0.95rem" }}
+                >
+                    ❌ {errorMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
