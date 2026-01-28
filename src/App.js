@@ -185,17 +185,6 @@ function App() {
                                     }
                                 />
 
-
-                                <Route path="/team" element={<PageTransition><Team/></PageTransition>}/>
-                                <Route path="/contacts" element={<PageTransition><Contacts/></PageTransition>}/>
-                                <Route path="/invoices" element={<PageTransition><Invoices/></PageTransition>}/>
-                                <Route path="/form" element={<PageTransition><Form/></PageTransition>}/>
-                                <Route path="/bar" element={<PageTransition><Bar/></PageTransition>}/>
-                                <Route path="/pie" element={<PageTransition><Pie/></PageTransition>}/>
-                                <Route path="/line" element={<PageTransition><Line/></PageTransition>}/>
-                                <Route path="/faq" element={<PageTransition><FAQ/></PageTransition>}/>
-                                <Route path="/calendar" element={<PageTransition><Calendar/></PageTransition>}/>
-                                <Route path="/geography" element={<PageTransition><Geography/></PageTransition>}/>
                             </Routes>
                         </AnimatePresence>
                     </main>
