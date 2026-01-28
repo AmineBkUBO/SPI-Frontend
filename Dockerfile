@@ -19,7 +19,8 @@ RUN pnpm install
 COPY . .
 
 # Build the frontend
-RUN pnpm build
+ENV DISABLE_ESLINT_PLUGIN=true
+RUN pnpm run build
 
 # -------------------------
 # Stage 2: Serve with Nginx
@@ -27,13 +28,13 @@ RUN pnpm build
 FROM nginx:alpine
 
 # Copy build output to Nginx html directory
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy custom nginx config if you have one
-# COPY nginx.conf /etc/nginx/nginx.conf
+    # COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
-EXPOSE 80
+EXPOSE 6969
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
